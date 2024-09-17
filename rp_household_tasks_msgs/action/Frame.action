@@ -1,0 +1,5 @@
+bool stopped # whether the node is stopped = True or stopped = False (meaning it is running)
+string frame # whether the frame should be changed
+---
+
+---
