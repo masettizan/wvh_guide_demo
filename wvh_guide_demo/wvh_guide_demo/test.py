@@ -196,7 +196,7 @@ def get_orientation_directions(path, graph):
             # print(orientation)
 
             current = orientation
-            #fix
+            #fix pls plsa
         # directions.append(orientation)
         print("lets see")
     return directions
