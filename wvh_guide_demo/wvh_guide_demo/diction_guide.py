@@ -3,6 +3,7 @@
 import rclpy
 import time
 import csv
+import math
 
 from rclpy.node import Node
 import numpy as np
@@ -11,15 +12,14 @@ class Graph(Node):
     
     def __init__(self):
         super().__init__('graph')
-
+        self.graph = {}
+        # fill in graph variable
         self.set_locations()
-        self.generate_edges(self.graph)
 
 
     # extract information from csv file containing all possible robot goal locations in EXP 120
     def set_locations(self):
         locations_path = '/home/hello-robot/ament_ws/src/wvh_guide_demo/wvh_guide_demo/locations.csv'
-        self.graph = {}
         #store locations in dict of tuples --> location : (x, y)
         with open(locations_path, 'r', newline='') as file:
             csv_reader = csv.DictReader(file, delimiter=':')
@@ -30,23 +30,19 @@ class Graph(Node):
                 info['neighbors'] = row['neighbors'].split(',')
                 self.graph[row['location']] = info
 
-    # definition of function 
+    # generate edges for path through graph 
     def generate_edges(self, path): 
         edges = [] 
     
-        for node in path:
-            index = path.index(node)
-            if node == path[-1]:
-                return edges
-            
-            next_node = path[index + 1]
-                
-                # if edge exists then append 
+        for idx in range(len(path) - 1):
+            node = path[idx]
+            next_node = path[idx + 1]
+            # if edge exists then append 
             edges.append((node, next_node)) 
         return edges 
 
-    def find_path(self, goal):
-        start = 'robot_position'
+    # find path through BFS from start to goal in the graph
+    def find_path(self, start, goal):
         explored = []
         queue = [[start]]
 
@@ -74,40 +70,125 @@ class Graph(Node):
                 explored.append(node)
         return #error path does not exist
 
-    def get_orientation_directions(self, path):
-        current = 180
+    # return orientation for given difference in x and y from edges
+    def get_goal_orientation(self, x_diff, y_diff):
+        x_diff = np.sign(x_diff)
+        y_diff = np.sign(y_diff)
+
+        if x_diff > 0.0:
+            return 0.0
+        elif x_diff < 0.0:
+            return math.pi
+        elif y_diff > 0.0:
+            return math.pi/2
+        elif y_diff < 0.0:
+            return 3*math.pi/2
+        else:
+            # its the same point
+            return None
+
+    # return new orientation in terms of the unit circle in radians      
+    def get_new_orientation(self, current, x, y):
+        return (current - x*math.pi/2 - y*math.pi/2)%(2*math.pi)
+    
+    # return directions for turning for given edge and starting orientation
+    def get_orientation_directions(self, start_orientation, edge):
+        current = start_orientation
+        # find difference in starting node to end node of edge
+        delta_x =  self.graph[edge[1]]['x'] - self.graph[edge[0]]['x']
+        delta_y =  self.graph[edge[1]]['y'] - self.graph[edge[0]]['y']
+        # find what direction we need to face to be able to travel straight forward to it
+        goal_orientation = self.get_goal_orientation(delta_x, delta_y)
+
         directions = []
-        edges = self.generate_edges(path)
-        for edge in edges:
-            delta_x = self.graph[edge[1]]['x'] - self.graph[edge[0]]['x']
-            delta_y = self.graph[edge[1]]['y'] - self.graph[edge[0]]['y']
+        # if already facing direction continue
+        if goal_orientation == current or None:
+            return 'continue facing current direction'
+        # keep turning until goal orientation is acheived
+        while current != goal_orientation:
+            # if edge have same location for the start and end node 
+            if delta_x == 0.0 and delta_y == 0.0:
+                return 'arrived'
+            # get sign of difference in position
+            x = np.sign(delta_x)
+            y = np.sign(delta_y)
 
-            orientation = (0.0, 0.0) #[x,y]
-            #'Yes' if fruit == 'Apple' else 'No'
-            if (delta_x != 0.0):
-                orientation[0] = np.sign(delta_x)
-            elif (delta_y != 0.0):
-                orientation[1] = np.sign(delta_y)
+            # if facing pi or pi/2, aka. 180 or 90 degrees
+            if (current == math.pi) or (current == math.pi/2):
+                # update orientation
+                orientation = self.get_new_orientation(current, x, y)
+                # tell which direction to move 
+                if (x < 0.0 and  y == 0.0) or (x == 0.0 and y < 0.0):
+                    directions.append('left')
+                else:
+                    directions.append('right')
+            # if facing 3pi/2 or 0 == 2pi, aka. 270 or 0 (where 0 == 360 bc of mod)
+            elif (current == 3*math.pi/2) or (current == 0.0):
+                orientation = self.get_new_orientation(current, -1*x, -1*y)
+                if (x < 0.0 and  y == 0.0) or (x == 0.0 and y < 0.0):
+                    directions.append('right')
+                else:
+                    directions.append('left')
+            # update current orientation
+            current = orientation
+        return current, directions
             
-            
-            
-
-
-
-            
-
-
-
-
-            directions.append(delta)
-
-    def get_translation_directions(self, path):
+    # return directions for movement for given edge, update current position
+    def get_translation_directions(self, current, edge):
         # path to follow
         # only give movement directions
-        directions = []
+        delta = (self.graph[edge[1]]['x'] - self.graph[edge[0]]['x'], 
+                    self.graph[edge[1]]['y'] - self.graph[edge[0]]['y'])
+        
+        # update current position
+        current = (current[0] + delta[0], current[1] + delta[1])
+
+        # always pos cause neg is happening in turning
+        move = max(abs(delta[0]), abs(delta[1]))
+        direction = f'move forward {float(round(move, 2))} meters'
+        return current, direction
+
+    # return directions from start position to goal position on graph using BFS
+    # update current orientation and current position
+    def get_directions(self, orientation, start, goal):
+        # find path using BFS
+        path = self.find_path(start, goal)
         edges = self.generate_edges(path)
+
+        directions = []
+        # current position and orientation in room/graph
+        current_ori = orientation
+        current_pos = (self.graph[start]['x'], self.graph[start]['y'])
+
+        # for each edge in the path calculate directions
         for edge in edges:
-            delta = (self.graph[edge[1]]['x'] - self.graph[edge[0]]['x'], 
-                     self.graph[edge[1]]['y'] - self.graph[edge[0]]['y'])
-            print(f'move forward {max(delta[0], delta[1])} meters')
-            directions.append(delta)
+            current_ori, turns = self.get_orientation_directions(current_ori, edge)
+            current_pos, movement = self.get_translation_directions(current_pos, edge)
+            # some positions may require more than one turn at a time (aka U-turns, etc.)
+            for turn in turns:
+                directions.append(turn)
+            directions.append(movement)
+
+        
+        print(directions, current_ori, current_pos)
+        # return directions in array, along with updated user info
+        return directions, current_ori, current_pos
+            
+def main():
+    try:
+        rclpy.init()
+        traverse = Graph()
+        # have to feed in valid names on graph
+        # robot_position : drake_desk : emily_desk : demo_table
+
+        current_position = 'robot_position' # 0.0:0.0 -- given it in name or in position???
+        current_orientation = math.pi
+        directions, current_orientation, current_position = traverse.get_directions(current_orientation, current_position, 'drake_desk')
+
+        # rclpy.spin(traverse)
+    except KeyboardInterrupt:
+        pass
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
