@@ -111,6 +111,8 @@ def generate_edges(path):
         edges.append((node, next_node)) 
     print (edges)
     return edges 
+
+
 def get_translation_directions( path, graph):
         # path to follow
         # only give movement directions
@@ -196,7 +198,7 @@ def get_orientation_directions(path, graph):
             # print(orientation)
 
             current = orientation
-            
+            #fix pls plsa
         # directions.append(orientation)
         print("lets see")
     return directions
