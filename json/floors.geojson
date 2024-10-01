@@ -81,7 +81,7 @@
       },
       "properties": {
         "id": "f1_p7",
-        "neighbors": ["f1_p6", "f2_p1"],
+        "neighbors": ["f1_p6", "f2_p1", "f3_p1"],
         "floor": 1
       }
     },
@@ -405,7 +405,7 @@
       },
       "properties": {
         "id": "f2_p1",
-        "neighbors": ["f2_p3"],
+        "neighbors": ["f2_p3", "f1_p7", "f3_p1"],
         "floor": 2
       }
     },
