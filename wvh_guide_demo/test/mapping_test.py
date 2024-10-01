@@ -9,6 +9,41 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from shapely.geometry import Point
 
+'''
+{"geometry": {
+    "coordinates": [0.0, 0.0],
+    "type": "Point"
+    }, 
+"properties": {
+    "floor": 1, 
+    "id": "f1_p1", 
+    "neighbors": ["f1_p2"]
+    }, 
+"type": "Feature"
+}
+'''
+
+'''
+info = {}
+info['x'] = float(row['position_x'])
+info['y'] = float(row['position_y'])
+info['neighbors'] = row['neighbors'].split(',')
+self.graph[row['location']] = info
+'''
+def converter():
+    with open('/home/masettizan/ros2_ws/src/wvh_guide_demo/json/floors.geojson') as f:
+        data = geojson.load(f)
+        
+    for feature in data['features']:
+        info = {}
+        info['x'] = float(feature['geometry']['coordinates'][0])
+        info['y'] = float(feature['geometry']['coordinates'][1])
+        info['neighbors'] = feature['properties']['neighbors']
+        info['floor'] = feature['properties']['floor']
+        print(info)
+        # print (feature['geometry']['type'])
+        # print (feature['geometry']['coordinates'])
+
 with open("/home/masettizan/ros2_ws/src/wvh_guide_demo/json/floors.geojson") as json_file:
     json_data = geojson.load(json_file) # or geojson.load(json_file)
 print(json_data.keys())
@@ -62,7 +97,8 @@ def add_geo_to_graph_gds(geo_data):
     }, 
 "type": "Feature"
 }
-'''            
+'''  
+
 def add_geo_to_graph(geo_data):
     color = []
     edge = []
@@ -90,10 +126,7 @@ def add_geo_to_graph(geo_data):
 
     return color, edge
 
-        
-
 # Add nodes and edges from the GeoJSON geometries to the graph
-
 color,edge = add_geo_to_graph(json_data['features'])
 
 # Get positions for nodes

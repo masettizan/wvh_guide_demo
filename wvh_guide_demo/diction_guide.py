@@ -17,20 +17,6 @@ class Graph(Node):
         # fill in graph variable
         self.set_locations()
 
-
-    # extract information from csv file containing all possible robot goal locations in EXP 120
-    def set_locations_csv(self):
-        locations_path = '/home/hello-robot/ament_ws/src/wvh_guide_demo/wvh_guide_demo/locations.csv'
-        #store locations in dict of tuples --> location : (x, y)
-        with open(locations_path, 'r', newline='') as file:
-            csv_reader = csv.DictReader(file, delimiter=':')
-            for row in csv_reader:
-                info = {}
-                info['x'] = float(row['position_x'])
-                info['y'] = float(row['position_y'])
-                info['neighbors'] = row['neighbors'].split(',')
-                self.graph[row['location']] = info
-    
     def set_locations(self):
         with open('/home/masettizan/ros2_ws/src/wvh_guide_demo/json/floors.geojson') as f:
             data = geojson.load(f)
@@ -83,71 +69,44 @@ class Graph(Node):
                 explored.append(node)
         return #error path does not exist
 
-    # return orientation for given difference in x and y from edges
-    def get_goal_orientation(self, x_diff, y_diff):
-        x_diff = np.sign(x_diff)
-        y_diff = np.sign(y_diff)
-
-        if x_diff > 0.0:
-            return 0.0
-        elif x_diff < 0.0:
-            return math.pi
-        elif y_diff > 0.0:
-            return math.pi/2
-        elif y_diff < 0.0:
-            return 3*math.pi/2
-        else:
-            # its the same point
-            return None
-
-    # return new orientation in terms of the unit circle in radians      
-    def get_new_orientation(self, current, x, y):
-        return (current - x*math.pi/2 - y*math.pi/2)%(2*math.pi)
-    
-    # return directions for turning for given edge and starting orientation
-    def get_orientation_directions(self, start_orientation, edge):
-        current = start_orientation
+    def get_orientation_directions(self, heading, edge):
         # find difference in starting node to end node of edge
-        delta_x =  self.graph[edge[1]]['x'] - self.graph[edge[0]]['x']
-        delta_y =  self.graph[edge[1]]['y'] - self.graph[edge[0]]['y']
-        # find what direction we need to face to be able to travel straight forward to it
-        goal_orientation = self.get_goal_orientation(delta_x, delta_y)  
+        vector_u = np.array([self.graph[edge[0]]['x'], self.graph[edge[0]]['y']]) # vector a - where we are
+        vector_v = np.array([self.graph[edge[1]]['x'], self.graph[edge[1]]['y']]) # vector b - where we are going
         
+        # heading & head is in vector format
+        head, theta, theta_direction = self.get_angle(heading, vector_u, vector_v)
 
-        directions = []
-        # if already facing direction continue
-        if goal_orientation == current or None:
-            return current, ['continue facing current direction']
-        # keep turning until goal orientation is acheived
-        while current != goal_orientation:
-            print(goal_orientation, current)
-            # if edge have same location for the start and end node 
-            if delta_x == 0.0 and delta_y == 0.0:
-                return current, ['arrived']
-            # get sign of difference in position
-            x = np.sign(delta_x)
-            y = np.sign(delta_y)
+        if theta == 0.0:
+            return head, 'continue'
+        
+        direction = 'cw' if theta_direction == -1 else 'ccw'
+        return head, f'turn {round(theta)} degrees {direction}'      
 
-            # if facing pi or pi/2, aka. 180 or 90 degrees
-            if (current == math.pi) or (current == math.pi/2):
-                # update orientation
-                orientation = self.get_new_orientation(current, x, y)
-                # tell which direction to move 
-                if (x < 0.0 and  y == 0.0) or (x == 0.0 and y < 0.0):
-                    directions.append('left')
-                else:
-                    directions.append('right')
-            # if facing 3pi/2 or 0 == 2pi, aka. 270 or 0 (where 0 == 360 bc of mod)
-            elif (current == 3*math.pi/2) or (current == 0.0):
-                orientation = self.get_new_orientation(current, -1*x, -1*y)
-                if (x < 0.0 and  y == 0.0) or (x == 0.0 and y < 0.0):
-                    directions.append('right')
-                else:
-                    directions.append('left')
-            # update current orientation
-            current = orientation
-        return current, directions
-            
+    def get_angle_direction(self, heading, goal):
+        # these vectors are what were taking the dot product of in get_angle()
+        cross = np.cross(heading, goal) 
+
+        if cross > 0:
+            return 1 # positive (+), ccw
+        elif cross < 0:
+            return -1 # negative (-), cw
+        else:
+            return 0 # colinear (cross == 0), when theta is 180 returns 0 : this is a problem :
+
+    def get_angle(self, heading, u, v):
+        # vector difference between 'a' and 'b' - hypotonuse
+        goal_vector = v - u
+        goal_norm = goal_vector/np.linalg.norm(goal_vector)
+
+        heading_norm = heading/np.linalg.norm(heading)
+        cos_theta = np.dot(heading_norm, goal_norm)
+
+        theta = np.arccos(cos_theta)
+        theta_direction = self.get_angle_direction(heading_norm, goal_norm)
+
+        return goal_norm, np.degrees(theta), theta_direction
+
     # return directions for movement for given edge, update current position
     def get_translation_directions(self, current, edge):
         # path to follow
@@ -183,20 +142,18 @@ class Graph(Node):
 
         # for each edge in the path calculate directions
         for edge in edges:
-            current_ori, turns = self.get_orientation_directions(current_ori, edge)
+            current_ori, turn = self.get_orientation_directions(current_ori, edge)
             current_pos, movement, elevator = self.get_translation_directions(current_pos, edge)
             # some positions may require more than one turn at a time (aka U-turns, etc.)
-            for turn in turns:
-                directions.append(turn)
+            
+            directions.append(turn)
             directions.append(movement)
             
-
             if elevator:
                 current_ori = math.pi
                 directions.append('turn to face exit of elevator/stairs')
                 # print('turning to face the exit of the elevator assumed, changing current ori to pi')
-
-        
+   
         print(directions, current_ori, current_pos)
         # return directions in array, along with updated user info
         return directions, current_ori, current_pos
@@ -210,7 +167,7 @@ def main():
         # robot_position : drake_desk : emily_desk : demo_table
 
         current_position = 'f2_p15' # 0.0:0.0 -- given it in name or in position???
-        current_orientation = math.pi
+        current_orientation = np.array([-1, 0])
         directions, current_orientation, current_position = traverse.get_directions(current_orientation, current_position, 'f2_p26')
 
         # rclpy.spin(traverse)

@@ -1,5 +1,0 @@
-location:position_x:position_y:neighbors
-robot_position:0.0:0.0:drake_desk
-drake_desk:0.0:1.7:emily_desk,demo_table,robot_position
-emily_desk:0.0:2.7:drake_desk
-demo_table:1.5:1.7:drake_desk
