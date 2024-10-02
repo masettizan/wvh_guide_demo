@@ -91,7 +91,7 @@ def calculate_edge_cost(graph, ele, st, node_name, neighbor_name):
 
     distance = b - a  
 
-    weight = np.sqrt(distance[0]*distance[0] + distance[1]*distance[1])
+    weight = np.sqrt(distance[0]**2 + distance[1]**2)
     return weight
 
 def dijkstra(graph, start, goal, ele, st):
@@ -102,13 +102,13 @@ def dijkstra(graph, start, goal, ele, st):
 
     while queue:
         cost, node = heapq.heappop(queue)
-        print(cost, node)
+        # print(cost, node)
 
         if node == goal:
             result = []
             while node is not None:
                 result.append(node)
-                print(path)
+                # print(path)
                 node = path[node][0]
             return result[::-1], cost  # Return reversed path and cost
 
@@ -121,8 +121,21 @@ def dijkstra(graph, start, goal, ele, st):
             # print(path)
     return path
 
+
+def generate_edges(path): 
+    edges = [] 
+
+    for idx in range(len(path) - 1):
+        node = path[idx]
+        next_node = path[idx + 1]
+        # if edge exists then append 
+        edges.append((node, next_node)) 
+    return edges 
+
 graph = set_locations()
 
 elevators = ['f1_p7', 'f2_p1', 'f3_p1']
 stairs = ['f1_p18', 'f1_p25', 'f2_p14', 'f2_p15', 'f3_p3', 'f3_p17']
-print(dijkstra(graph, 'f1_p1', 'f3_p2', elevators, stairs))
+path = dijkstra(graph, 'f1_p1', 'f3_p2', elevators, stairs)
+print(path)
+print(generate_edges(path[0]))

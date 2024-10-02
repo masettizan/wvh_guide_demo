@@ -5,6 +5,7 @@ import time
 import csv
 import math
 import geojson
+import heapq
 
 from rclpy.node import Node
 import numpy as np
@@ -28,6 +29,9 @@ class Graph(Node):
             info['neighbors'] = feature['properties']['neighbors']
             info['floor'] = feature['properties']['floor']
             self.graph[feature['properties']['id']] = info
+        
+        self.elevators = ['f1_p7', 'f2_p1', 'f3_p1']
+        # self.stairs = ['f1_p18', 'f1_p25', 'f2_p14', 'f2_p15', 'f3_p3', 'f3_p17']
 
     # generate edges for path through graph 
     def generate_edges(self, path): 
@@ -40,34 +44,46 @@ class Graph(Node):
             edges.append((node, next_node)) 
         return edges 
 
-    # find path through BFS from start to goal in the graph
+    def calculate_edge_cost(self, node_id, neighbor_id):
+        node = self.graph[node_id]
+        neighbor = self.graph[neighbor_id]
+
+        if node['floor'] != neighbor['floor']:
+            if node_id in self.elevators and neighbor_id in self.elevators:
+                return 0 # motivate usage of elevators by making it low cost
+            else: # only other option is stairs, seems reduntant to do elif
+                return 10 # avg stair case for 10ft ceilings is 3m, assuming exp is 30ft ceilings
+
+        node_coord = np.asarray((node['x'], node['y'])) 
+        neighbor_coord = np.asarray((neighbor['x'], neighbor['y']))
+
+        cost = node_coord - neighbor_coord # distance between coord vectors
+        return np.sqrt(cost[0]**2 + cost[1]**2) # magnitude of cost vector
+
+    # find path through dijkstra from start to goal in the graph
     def find_path(self, start, goal):
-        explored = []
-        queue = [[start]]
+        queue = []
 
-        if start == goal:
-            return 
-        
+        heapq.heappush(queue, (0, start))
+        path = {start: (None, 0)} # prev node, cost
+
         while queue:
-            #pop first path
-            path = queue.pop(0)
-            #get last node from path
-            node = path[-1]
+            cost, node = heapq.heappop(queue)
+            
+            if node == goal:
+                result = []
+                while node is not None:
+                    result.append(node)
+                    node = path[node][0]
+                return result[::-1] # return resvered path
 
-            if node not in explored:
-                neighbors = self.graph[node]['neighbors']
-                # go through neighbor nodes
-                for neighbor in neighbors:
-                    new_path = list(path)
-                    new_path.append(neighbor)
-                    #push to queue
-                    queue.append(new_path)
+            for neighbor in self.graph[node]['neighbors']:
+                weight = cost + self.calculate_edge_cost(node, neighbor)
 
-                    if neighbor == goal:
-                        return new_path
-                    
-                explored.append(node)
-        return #error path does not exist
+                if neighbor not in path or weight < path[neighbor][1]:
+                    path[neighbor] = (node, weight)
+                    heapq.heappush(queue, (weight, neighbor))
+        
 
     def get_orientation_directions(self, heading, edge):
         # find difference in starting node to end node of edge

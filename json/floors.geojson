@@ -905,7 +905,7 @@
       "type": "Feature",
       "geometry": {
         "type": "Point",
-        "coordinates": [-25.0, 20.0]
+        "coordinates": [-15.0, 20.0]
       },
       "properties": {
         "id": "f3_p12",

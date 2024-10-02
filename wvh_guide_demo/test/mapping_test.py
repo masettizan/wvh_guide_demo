@@ -98,6 +98,31 @@ def add_geo_to_graph_gds(geo_data):
 "type": "Feature"
 }
 '''  
+def  add_node(geo_data, floor):
+    nodes = []
+    for node in geo_data:
+        geometry = node.geometry
+        coords = (geometry.coordinates[0], geometry.coordinates[1])
+        properties = node.properties
+        # print(properties)
+        if properties['floor'] == floor:
+            G.add_node(node_for_adding=properties["id"], pos=coords, floor=properties['floor'], neighbors=properties['neighbors'])
+            nodes.append(properties['id'])
+    return nodes
+
+def add_edges(geo_data, floor):
+    edge = []
+    for node, data in G.nodes.items():
+        if data['floor'] == floor:
+            for neighbor in data["neighbors"]:
+                
+                if node[:2] != neighbor[:2]:
+                    print(node, neighbor)
+                    
+                else:
+                    edge.append((node, neighbor))
+                    G.add_edge(node, neighbor)
+    return edge
 
 def add_geo_to_graph(geo_data):
     color = []
@@ -119,23 +144,39 @@ def add_geo_to_graph(geo_data):
 
     for node, data in G.nodes.items():
         for neighbor in data["neighbors"]:
-            G.add_edge(node, neighbor)
+            
             if node[:2] != neighbor[:2]:
                 print(node, neighbor)
                 edge.append((node, neighbor))
+            else:
+                G.add_edge(node, neighbor)
 
     return color, edge
 
 # Add nodes and edges from the GeoJSON geometries to the graph
-color,edge = add_geo_to_graph(json_data['features'])
-
+# color,edge = add_geo_to_graph(json_data['features'])
+nodes = add_node(json_data['features'], 1)
 # Get positions for nodes
 pos = nx.get_node_attributes(G, 'pos')
-
+edge = add_edges(json_data['features'], 1)
 # Draw the graph
 plt.figure(figsize=(10, 8))
-nx.draw(G, pos, node_size=30, node_color=color, style="dashed",with_labels=False)
-nx.draw_networkx_edges(G, pos, edgelist=edge, edge_color="purple")
+nx.draw(G, pos, node_size=80, nodelist=nodes, edgelist = edge, node_color='indigo', width= 1, edge_color= 'purple',  style="dashed",with_labels=False)
+
+nodes = add_node(json_data['features'], 2)
+# Get positions for nodes
+pos = nx.get_node_attributes(G, 'pos')
+edge = add_edges(json_data['features'], 2)
+
+nx.draw(G, pos, node_size=40, nodelist=nodes, edgelist = edge, node_color='orange', width= 1, edge_color= 'orange',  style="dashed",with_labels=False)
+
+
+nodes = add_node(json_data['features'], 3)
+# Get positions for nodes
+pos = nx.get_node_attributes(G, 'pos')
+edge = add_edges(json_data['features'], 3)
+nx.draw(G, pos, node_size=10, nodelist=nodes, edgelist = edge, node_color='red', width= 1, edge_color= 'red', style="dashed",with_labels=False)
+# nx.draw_networkx_edges(G, pos, edgelist=edge, edge_color="purple")
 
 # Plot the geometries as well for comparison
 # geo_data.plot(ax=plt.gca(), alpha=0.5, edgecolor='black')
