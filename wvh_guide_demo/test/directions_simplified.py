@@ -64,58 +64,61 @@ def get_angle(heading, u, v):
     return goal_norm, np.degrees(theta), theta_direction
 
 # return directions for movement for given edge, update current position
-def get_translation_directions(graph, current, edge):
+def get_translation_directions(graph, current, edge, elevators):
     # path to follow
-    change_floor = graph[edge[0]]['floor'] != graph[edge[1]]['floor']
-    if change_floor:
-        goal = graph[edge[1]]['floor']
-        current = (graph[edge[1]]['x'], graph[edge[1]]['y'])
-        direction = f'take elevator/stairs to floor {goal}'
-        return current, direction, change_floor
+    vector_u = np.array([graph[edge[0]]['x'], graph[edge[0]]['y']]) # vector a - where we are
+    vector_v = np.array([graph[edge[1]]['x'], graph[edge[1]]['y']]) # vector b - where we are going
+
+    if graph[edge[0]]['floor'] != graph[edge[1]]['floor']:
+        if edge[0] in elevators and edge[1] in elevators:
+            transport = 'elevator' 
+        else:
+            transport = 'stairs'
+        direction = f'take {transport} to floor {graph[edge[1]]["floor"]}'
+
+        return vector_v, direction
     # only give movement directions
-    delta = (graph[edge[1]]['x'] - graph[edge[0]]['x'], 
-                graph[edge[1]]['y'] - graph[edge[0]]['y'])
+    delta = vector_v - vector_u
     
     # update current position
-    current = (current[0] + delta[0], current[1] + delta[1])
+    current = current + delta #(current[0] + delta[0], current[1] + delta[1])
 
     # always pos cause neg is happening in turning
-    move = max(abs(delta[0]), abs(delta[1]))
+    move = np.sqrt(delta[0]**2 + delta[1]**2) #max(abs(delta[0]), abs(delta[1]))
     direction = f'move forward {float(round(move, 2))} meters'
-    return current, direction, change_floor
+    return current, direction
 
 # return directions from start position to goal position on graph using BFS
 # update current orientation and current position
-def get_directions(graph, orientation, start, goal):
+def get_directions(graph, heading, start, goal):
     elevators = ['f1_p7', 'f2_p1', 'f3_p1']
     path = ['f1_p1', 'f1_p2', 'f1_p3', 'f1_p4', 'f1_p10', 'f1_p11', 'f1_p13', 'f1_p5', 'f1_p6', 'f1_p7', 'f3_p1', 'f3_p2']
     edges = [('f1_p1', 'f1_p2'), ('f1_p2', 'f1_p3'), ('f1_p3', 'f1_p4'), ('f1_p4', 'f1_p10'), ('f1_p10', 'f1_p11'), ('f1_p11', 'f1_p13'), ('f1_p13', 'f1_p5'), ('f1_p5', 'f1_p6'), ('f1_p6', 'f1_p7'), ('f1_p7', 'f3_p1'), ('f3_p1', 'f3_p2')]
 
     directions = []
     # current position and orientation in room/graph
-    current_ori = orientation
-    current_pos = (graph[start]['x'], graph[start]['y'])
+    orientation = heading
+    position = np.array([graph[start]['x'], graph[start]['y']])
 
     # for each edge in the path calculate directions
     for edge in edges:
-        current_ori, turn = get_orientation_directions(graph, current_ori, edge)
-        current_pos, movement, elevator = get_translation_directions(graph, current_pos, edge)
+        orientation, turn = get_orientation_directions(graph, orientation, edge)
+        position, movement = get_translation_directions(graph, position, edge, elevators)
         # some positions may require more than one turn at a time (aka U-turns, etc.)
         
         directions.append(turn)
         directions.append(movement)
         
-        if elevator:
-            current_ori = np.array([-1, 0])
-            directions.append('turn to face exit of elevator/stairs')
-            # print('turning to face the exit of the elevator assumed, changing current ori to pi')
+        if 'elevator' in movement: # assuming all elevators face the same direction: -1, 0 aka. pi
+            orientation = np.array([-1, 0]) 
+            directions.append('turn to face exit of elevator')
+        elif 'stairs' in movement: # assuming all stair exits face the same direction: -1, 0 aka. pi
+            orientation = np.array([-1, 0]) 
+            directions.append('continue facing exit of stairs')
 
-    print(directions, current_ori, current_pos)
     # return directions in array, along with updated user info
-    return directions, current_ori, current_pos
+    return directions, orientation, position
         
 graph = set_locations()
-
-
-dir = get_directions(graph, np.array([0, 1]), 'f1_p7', 'f3_p2')
+dir, ori, pos = get_directions(graph, np.array([0, 1]), 'f1_p7', 'f3_p2')
 print(dir)
