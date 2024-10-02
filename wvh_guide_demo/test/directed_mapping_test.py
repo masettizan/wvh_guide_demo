@@ -45,6 +45,7 @@ def add_edges_to_graph(graph, floor):
     return edges
 
 def setup_map(graph):
+    plt.ion()
     plt.figure(figsize=(10,8))
     draw_floor(graph, 1, 'purple')
     draw_floor(graph, 2, 'orange')
@@ -55,7 +56,8 @@ def draw_floor(graph, floor, color):
     nodes = add_node_to_graph(graph, floor)
     edges = add_edges_to_graph(graph, floor)
     pos = nx.get_node_attributes(G, 'pos')
-
+    for i in range(100):
+        print("hiu")
     nx.draw(G, pos, nodelist=nodes, edgelist=edges, node_size=20, node_color=color, edge_color=color, style='dashed', with_labels=False)
 
 def draw_path(path):
@@ -65,5 +67,7 @@ def draw_path(path):
 G = nx.Graph()
 graph, elevators = set_locations()
 setup_map(graph)
-draw_path([('f1_p1', 'f1_p2'), ('f1_p2', 'f1_p3'), ('f1_p3', 'f1_p4'), ('f1_p4', 'f1_p10'), ('f1_p10', 'f1_p11'), ('f1_p11', 'f1_p13'), ('f1_p13', 'f1_p5'), ('f1_p5', 'f1_p6'), ('f1_p6', 'f1_p7'), ('f1_p7', 'f3_p1'), ('f3_p1', 'f3_p2')])
-plt.show()
+draw_path(('f1_p1', 'f1_p2'))
+input("press enter")
+plt.close()
+# plt.show()

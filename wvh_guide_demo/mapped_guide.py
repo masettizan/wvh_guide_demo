@@ -1,14 +1,16 @@
 #! /usr/bin/env python3
 
 import rclpy
-import time
-import csv
-import math
+
 import geojson
 import heapq
+import matplotlib.pyplot as plt 
 
+import networkx as nx
+import matplotlib.pyplot as plt
 from rclpy.node import Node
 import numpy as np
+import time
 
 class Graph(Node):
     
@@ -16,7 +18,12 @@ class Graph(Node):
         super().__init__('graph')
         self.graph = {}
         # fill in graph variable
+        plt.ion()
+        self.G = nx.Graph()
         self.set_locations()
+        self.setup_map()
+        # plt.show(block=False)
+
 
     def set_locations(self):
         with open('/home/masettizan/ros2_ws/src/wvh_guide_demo/json/floors.geojson') as f:
@@ -43,6 +50,55 @@ class Graph(Node):
             # if edge exists then append 
             edges.append((node, next_node)) 
         return edges 
+
+    def add_node_to_graph(self, floor):
+        nodes = []
+        for id, data in self.graph.items():
+            if data['floor'] == floor:
+                self.G.add_node(id, 
+                                pos=(data['x'], data['y']), 
+                                floor=data['floor'], 
+                                neighbors=data['neighbors']
+                                )
+                nodes.append(id)
+        return nodes
+
+    def add_edges_to_graph(self, floor):
+        edges = []
+        for id, data in self.graph.items():
+            if data['floor'] == floor:
+                for neighbor in data['neighbors']:
+                    if id[:2] == neighbor[:2]:
+                        self.G.add_edge(id, neighbor)
+                        if (neighbor, id) not in edges:
+                            edges.append((id, neighbor))
+        return edges
+
+    def setup_map(self):
+        plt.figure(figsize=(10,8))
+        self.draw_floor(1, 'purple')
+        self.draw_floor(2, 'orange')
+        self.draw_floor(3, 'red')
+
+    def draw_floor(self, floor, color):
+        nodes = self.add_node_to_graph(floor)
+        edges = self.add_edges_to_graph(floor)
+        pos = nx.get_node_attributes(self.G, 'pos')
+
+        nx.draw(self.G, 
+                pos, 
+                nodelist=nodes, 
+                edgelist=edges, 
+                node_size=20, 
+                node_color=color, 
+                edge_color=color, 
+                style='dashed', 
+                with_labels=False
+                )
+
+    def draw_edge(self, edge):
+        pos = nx.get_node_attributes(self.G, 'pos')
+        nx.draw_networkx_edges(self.G, pos, edgelist=edge, width=2)
 
     def calculate_edge_cost(self, node_id, neighbor_id):
         node = self.graph[node_id]
@@ -166,11 +222,17 @@ class Graph(Node):
                 orientation = np.array([-1, 0]) 
                 directions.append('continue facing exit of stairs')
 
+            self.draw_edge([edge])
+            plt.pause(1)  # to have it plot out in real time and not immedietly close you need this line
+
         # return directions in array, along with updated user info
         return directions, orientation, position
-            
+
+# move this to parameters and init when a launch file is made           
 def main():
-    # move this to parameters and init when a launch file is made
+    # if you want the graph to update in real time uncomment lines 21, 25, and 226
+    #   if you want to keep graph open after the program is done running, uncomment lines 246 and 247
+    # if you want the graph to be static, comment out lines 21, 25, 226, 246, 247. uncomment line 244
     try:
         rclpy.init()
         traverse = Graph()
@@ -179,6 +241,10 @@ def main():
         current_orientation = np.array([-1, 0])
         directions, current_orientation, current_position = traverse.get_directions(current_orientation, current_position, 'f3_p2')
         print(directions)
+        #plt.show()
+
+        # input("press enter to close graph")
+        # plt.close()
     except KeyboardInterrupt:
         pass
     rclpy.shutdown()
