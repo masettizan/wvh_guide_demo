@@ -94,9 +94,9 @@ def get_translation_directions(graph, current, edge, elevators):
 
         return vector_v, direction
     delta = vector_v - vector_u
-    current = current + delta #(current[0] + delta[0], current[1] + delta[1])
+    current = current + delta
 
-    move = np.sqrt(delta[0]**2 + delta[1]**2) #max(abs(delta[0]), abs(delta[1]))
+    move = np.sqrt(delta[0]**2 + delta[1]**2)
     direction = float(round(move, 2))
     return current, direction
 
@@ -201,5 +201,5 @@ def simplify(directions):
     return result
 
 graph = set_locations()
-dir, ori, pos = get_directions(graph, np.array([0, 1]), 'f1_p7', 'f3_p2')
+dir, ori, pos = get_directions(graph, np.array([-1, 0]), 'f1_p7', 'f3_p2')
 print(simplify(dir))

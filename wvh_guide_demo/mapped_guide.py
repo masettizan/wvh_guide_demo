@@ -149,22 +149,20 @@ class Graph(Node):
         head, theta, theta_direction = self.get_angle(heading, vector_u, vector_v)
 
         if theta == 0.0:
-            return head, 'continue'
+            return head, 0
         
         direction = 'cw' if theta_direction == -1 else 'ccw'
-        return head, f'turn {round(theta)} degrees {direction}'      
+        return head, (round(theta), theta_direction)           
 
     def get_angle_direction(self, heading, goal):
         # these vectors are what were taking the dot product of in get_angle()
         cross = np.cross(heading, goal) 
 
-        if cross > 0:
+        if cross >= 0:
             return 1 # positive (+), ccw
-        elif cross < 0:
-            return -1 # negative (-), cw
         else:
-            return 0 # colinear (cross == 0), when theta is 180 returns 0 : this is a problem :
-
+            return -1 # negative (-), cw
+        
     def get_angle(self, heading, u, v):
         # vector difference between 'a' and 'b' - hypotonuse
         goal_vector = v - u
@@ -188,7 +186,7 @@ class Graph(Node):
                 transport = 'elevator' 
             else:
                 transport = 'stairs'
-            direction = f'take {transport} to floor {self.graph[edge[1]]["floor"]}'
+            direction = (transport, self.graph[edge[1]]["floor"])
 
             return vector_v, direction
         
@@ -196,7 +194,7 @@ class Graph(Node):
         current = current + delta 
 
         move = np.sqrt(delta[0]**2 + delta[1]**2)
-        direction = f'move forward {float(round(move, 2))} meters'
+        direction = float(round(move, 2))
         return current, direction
 
     def get_directions(self, heading, start, goal):
@@ -212,22 +210,76 @@ class Graph(Node):
             orientation, turn = self.get_orientation_directions(orientation, edge)
             position, movement = self.get_translation_directions(position, edge)
             
-            directions.append(turn)
-            directions.append(movement)
-            
-            if 'elevator' in movement: # assuming all elevators face the same direction: -1, 0 aka. pi
+            directions.append(('rot', turn))
+            directions.append(('move', movement))
+
+            if isinstance(movement, tuple) and 'elevator' in movement[0]: # assuming all elevators face the same direction: -1, 0 aka. pi
                 orientation = np.array([-1, 0]) 
-                directions.append('turn to face exit of elevator')
-            elif 'stairs' in movement: # assuming all stair exits face the same direction: -1, 0 aka. pi
+                directions.append(('vert', 'turn to face exit of elevator'))
+            elif isinstance(movement, tuple) and 'stairs' in movement[0]: # assuming all stair exits face the same direction: -1, 0 aka. pi
                 orientation = np.array([-1, 0]) 
-                directions.append('continue facing exit of stairs')
+                directions.append(('vert', 'continue facing exit of stairs'))
 
             self.draw_edge([edge])
             plt.pause(1)  # to have it plot out in real time and not immedietly close you need this line
-
+            
         # return directions in array, along with updated user info
         return directions, orientation, position
+    
+    def simplify_rotation(self, directions):
+        new_directions = []
+        for step in directions:
+            type, action = step
+            if type == 'rot':
+                if isinstance(action, tuple):
+                    # i dont need to know where i am because where your facing is always 12 o'clock
+                    theta, sign = action
+                    new_directions.append((type, round(-1*sign*theta/30)%12)) # 360/12 = 30
+                # action is not a touple and is therefore 0 and therefore not added
+                else:
+                    continue
+            else:
+                new_directions.append(step)
+        return new_directions
 
+    def simplify_translation(self, directions):
+        index = 0
+
+        while index < len(directions) - 1:
+            type, action = directions[index]
+            next_type, next_action = directions[index + 1]
+
+            if type == 'move' and next_type == 'move':
+                if isinstance(action, float) and isinstance(next_action, float):
+                    action = action + next_action
+                    directions.pop(index + 1)
+                    directions[index] = (type, action)
+                else:
+                    index += 1
+            else:
+                index += 1
+        return directions
+
+    def simplify(self, directions):
+        dir = self.simplify_rotation(directions)
+        dir = self.simplify_translation(dir)
+
+        result = []
+
+        for step in dir:
+            type, action = step
+            if type == 'rot':
+                result.append(f"turn to your {action} o'clock")
+            elif type == 'move':
+                if isinstance(action, tuple):
+                    result.append(f'take the {action[0]} to floor {action[1]}')
+                else:
+                    result.append(f'move forward {action} meters')
+            else:
+                result.append(action)
+
+        return result
+    
 # move this to parameters and init when a launch file is made           
 def main():
     # if you want the graph to update in real time uncomment lines 21, 25, and 226
@@ -240,7 +292,8 @@ def main():
         current_position = 'f1_p1' # given in name
         current_orientation = np.array([-1, 0])
         directions, current_orientation, current_position = traverse.get_directions(current_orientation, current_position, 'f3_p2')
-        print(directions)
+        result = ', '.join(traverse.simplify(directions))
+        print(result)
         #plt.show()
 
         # input("press enter to close graph")
