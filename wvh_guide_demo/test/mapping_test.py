@@ -1,4 +1,5 @@
 #! /usr/bin/env python3
+import xml.etree.ElementTree as ET
 
 import geojson
 import matplotlib.pyplot as plt 
@@ -44,15 +45,42 @@ def converter():
         # print (feature['geometry']['type'])
         # print (feature['geometry']['coordinates'])
 
-with open("/home/masettizan/ros2_ws/src/wvh_guide_demo/json/floors.geojson") as json_file:
-    json_data = geojson.load(json_file) # or geojson.load(json_file)
-print(json_data.keys())
-print(type(json_data['features']))
+def main_converter():
+    with open("/home/masettizan/ros2_ws/src/wvh_guide_demo/json/floors.geojson") as json_file:
+        json_data = geojson.load(json_file) # or geojson.load(json_file)
+    print(json_data.keys())
+    print(type(json_data['features']))
 
-poly = json_data['features'][0]
-print (poly)
-print(poly["geometry"])
-print(poly.geometry.coordinates)
+    poly = json_data['features'][0]
+    print (poly)
+    print(poly["geometry"])
+    print(poly.geometry.coordinates)
+    return json_data
+
+def svg():
+    tree = ET.parse('/home/masettizan/ros2_ws/src/wvh_guide_demo/svg/WVH.svg')
+    root = tree.getroot()
+    info = {}
+    def element_to_dict(element,info):
+        element_dict = {}
+        element_dict['x'] = element.attrib.get('x')
+        element_dict['y'] = element.attrib.get('y')
+        element_dict['neighbors'] = element.attrib.get('neighbors')
+        element_dict['floor'] = element.attrib.get('floor')
+        
+        if element.attrib.get('id') is not None:
+            info[element.attrib.get('id')] = element_dict
+        return info
+    
+    if list(root):
+        for child in list(root):
+            info = element_to_dict(child, info)
+
+    return info
+
+svg = svg()
+
+json_data = main_converter()
 
 def layered_gpd():
     #geopandas attempot layered
@@ -69,11 +97,7 @@ def layered_gpd():
 
     plt.show()
 
-geo_data = json_data['features']
-# Load GeoJSON file using geopandas
-# having ogr error w this - solution create own json interpreter
-    # geo_data = gpd.read_file("/home/masettizan/ros2_ws/src/wvh_guide_demo/json/floors.geojson")
-    # print(geo_data)
+
 # Initialize a graph
 G = nx.Graph()
 
@@ -153,33 +177,35 @@ def add_geo_to_graph(geo_data):
 
     return color, edge
 
-# Add nodes and edges from the GeoJSON geometries to the graph
-# color,edge = add_geo_to_graph(json_data['features'])
-nodes = add_node(json_data['features'], 1)
-# Get positions for nodes
-pos = nx.get_node_attributes(G, 'pos')
-edge = add_edges(json_data['features'], 1)
-# Draw the graph
-plt.figure(figsize=(10, 8))
-nx.draw(G, pos, node_size=80, nodelist=nodes, edgelist = edge, node_color='indigo', width= 1, edge_color= 'purple',  style="dashed",with_labels=False)
 
-nodes = add_node(json_data['features'], 2)
-# Get positions for nodes
-pos = nx.get_node_attributes(G, 'pos')
-edge = add_edges(json_data['features'], 2)
+def main():
+    # Add nodes and edges from the GeoJSON geometries to the graph
+    # color,edge = add_geo_to_graph(json_data['features'])
+    nodes = add_node(json_data['features'], 1)
+    # Get positions for nodes
+    pos = nx.get_node_attributes(G, 'pos')
+    edge = add_edges(json_data['features'], 1)
+    # Draw the graph
+    plt.figure(figsize=(10, 8))
+    nx.draw(G, pos, node_size=80, nodelist=nodes, edgelist = edge, node_color='indigo', width= 1, edge_color= 'purple',  style="dashed",with_labels=False)
 
-nx.draw(G, pos, node_size=40, nodelist=nodes, edgelist = edge, node_color='orange', width= 1, edge_color= 'orange',  style="dashed",with_labels=False)
+    nodes = add_node(json_data['features'], 2)
+    # Get positions for nodes
+    pos = nx.get_node_attributes(G, 'pos')
+    edge = add_edges(json_data['features'], 2)
+
+    nx.draw(G, pos, node_size=40, nodelist=nodes, edgelist = edge, node_color='orange', width= 1, edge_color= 'orange',  style="dashed",with_labels=False)
 
 
-nodes = add_node(json_data['features'], 3)
-# Get positions for nodes
-pos = nx.get_node_attributes(G, 'pos')
-edge = add_edges(json_data['features'], 3)
-nx.draw(G, pos, node_size=10, nodelist=nodes, edgelist = edge, node_color='red', width= 1, edge_color= 'red', style="dashed",with_labels=False)
-# nx.draw_networkx_edges(G, pos, edgelist=edge, edge_color="purple")
+    nodes = add_node(json_data['features'], 3)
+    # Get positions for nodes
+    pos = nx.get_node_attributes(G, 'pos')
+    edge = add_edges(json_data['features'], 3)
+    nx.draw(G, pos, node_size=10, nodelist=nodes, edgelist = edge, node_color='red', width= 1, edge_color= 'red', style="dashed",with_labels=False)
+    # nx.draw_networkx_edges(G, pos, edgelist=edge, edge_color="purple")
 
-# Plot the geometries as well for comparison
-# geo_data.plot(ax=plt.gca(), alpha=0.5, edgecolor='black')
-
+    # Plot the geometries as well for comparison
+    # geo_data.plot(ax=plt.gca(), alpha=0.5, edgecolor='black')
+main()
 # Show the plot
 plt.show()
