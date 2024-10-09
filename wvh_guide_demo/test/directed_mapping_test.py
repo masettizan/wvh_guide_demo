@@ -30,7 +30,8 @@ def svg():
     tree = ET.parse('/home/masettizan/ros2_ws/src/wvh_guide_demo/svg/WVH.svg')
     root = tree.getroot()
     info = {}
-    def element_to_dict(element,info):
+    
+    def element_to_dict(element, info):
         if element.attrib.get('id') is not None:
             element_dict = {}
             element_dict['x'] = float(element.attrib.get('x'))

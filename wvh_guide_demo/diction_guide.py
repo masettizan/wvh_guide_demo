@@ -1,17 +1,15 @@
 #! /usr/bin/env python3
 
 import rclpy
-import time
-import csv
-import math
-import geojson
 import heapq
 
 from rclpy.node import Node
+import xml.etree.ElementTree as ET
 import numpy as np
 
 class Graph(Node):
-    
+    CONVERSION = 3/17
+
     def __init__(self):
         super().__init__('graph')
         self.graph = {}
@@ -19,19 +17,29 @@ class Graph(Node):
         self.set_locations()
 
     def set_locations(self):
-        with open('/home/masettizan/ros2_ws/src/wvh_guide_demo/json/floors.geojson') as f:
-            data = geojson.load(f)
-            
-        for feature in data['features']:
-            info = {}
-            info['x'] = float(feature['geometry']['coordinates'][0])
-            info['y'] = float(feature['geometry']['coordinates'][1])
-            info['neighbors'] = feature['properties']['neighbors']
-            info['floor'] = feature['properties']['floor']
-            self.graph[feature['properties']['id']] = info
+        tree = ET.parse('/home/masettizan/ros2_ws/src/wvh_guide_demo/svg/WVH.svg')
+        root = tree.getroot()
+        self.graph = {}
         
-        self.elevators = ['f1_p7', 'f2_p1', 'f3_p1']
-        # self.stairs = ['f1_p18', 'f1_p25', 'f2_p14', 'f2_p15', 'f3_p3', 'f3_p17']
+        if list(root):
+            for child in list(root):
+                self.element_to_dict(child)
+
+        self.elevators = ['f1_elevator', 'f2_elevator', 'f3_elevator', 'f4_elevator']
+
+    def element_to_dict(self, element):
+        attributes = element.attrib
+        if attributes.get('id') is None:
+            return
+        
+        element_dict = {}
+        element_dict['x'] = float(attributes.get('x')) * self.CONVERSION
+        element_dict['y'] = float(attributes.get('y')) * self.CONVERSION
+        element_dict['neighbors'] = attributes.get('neighbors').split(',')
+        element_dict['floor'] = int(attributes.get('floor'))
+        
+        self.graph[attributes.get('id')] = element_dict
+        
 
     # generate edges for path through graph 
     def generate_edges(self, path): 
@@ -110,6 +118,10 @@ class Graph(Node):
     def get_angle(self, heading, u, v):
         # vector difference between 'a' and 'b' - hypotonuse
         goal_vector = v - u
+        if not np.any(goal_vector):
+            print('elevator')
+            return -1*heading, 180, 1
+
         goal_norm = goal_vector/np.linalg.norm(goal_vector)
 
         heading_norm = heading/np.linalg.norm(heading)
@@ -176,6 +188,8 @@ class Graph(Node):
                 if isinstance(action, tuple):
                     # i dont need to know where i am because where your facing is always 12 o'clock
                     theta, sign = action
+                    if round(-1*sign*theta/30)%12 == 0:
+                        continue
                     new_directions.append((type, round(-1*sign*theta/30)%12)) # 360/12 = 30
                 # action is not a touple and is therefore 0 and therefore not added
                 else:
@@ -216,7 +230,7 @@ class Graph(Node):
                 if isinstance(action, tuple):
                     result.append(f'take the {action[0]} to floor {action[1]}')
                 else:
-                    result.append(f'move forward {action} meters')
+                    result.append(f'move forward {action} ft')
             else:
                 result.append(action)
 
