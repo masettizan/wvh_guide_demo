@@ -159,10 +159,10 @@
   <rect id="f3_346" neighbors="f3_p17" x="467.64" y="533.53" floor="3"/>
   <rect id="f3_p18" neighbors="f3_p17,f3_348,f3_p19,f3_p20" x="485.01" y="597.47" floor="3"/>
   <rect id="f3_348" neighbors="f3_p18" x="467.64" y="597.47" floor="3"/>
-  <rect id="f3_p19" neighbors="f3_352,f3_354" x="541.75" y="597.47" floor="3"/>
+  <rect id="f3_p19" neighbors="f3_352,f3_354,f3_p18" x="541.75" y="597.47" floor="3"/>
   <rect id="f3_354" neighbors="f3_p19" x="541.75" y="616.67" floor="3"/>
   <rect id="f3_352" neighbors="f3_p19" x="541.75" y="585.8" floor="3"/>
-  <rect id="f3_p20" neighbors="f3_p19,f3_350,f3_p21" x="485.01" y="650.97" floor="3"/>
+  <rect id="f3_p20" neighbors="f3_p18,f3_350,f3_p21" x="485.01" y="650.97" floor="3"/>
   <rect id="f3_350" neighbors="f3_p20" x="467.64" y="650.97" floor="3"/>
   <rect id="f3_p21" neighbors="f3_p20,f3_356,f3_p22" x="485.01" y="703.48" floor="3"/>
   <rect id="f3_356" neighbors="f3_p21" x="467.64" y="703.48" floor="3"/>
