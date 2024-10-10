@@ -2,7 +2,6 @@
 
 import rclpy
 
-import geojson
 import heapq
 import matplotlib.pyplot as plt 
 
@@ -11,9 +10,11 @@ import matplotlib.pyplot as plt
 from rclpy.node import Node
 import numpy as np
 import time
+import xml.etree.ElementTree as ET
 
 class Graph(Node):
-    
+    CONVERSION = 3/17   
+
     def __init__(self):
         super().__init__('graph')
         self.graph = {}
@@ -24,21 +25,29 @@ class Graph(Node):
         self.setup_map()
         # plt.show(block=False)
 
-
     def set_locations(self):
-        with open('/home/masettizan/ros2_ws/src/wvh_guide_demo/json/floors.geojson') as f:
-            data = geojson.load(f)
-            
-        for feature in data['features']:
-            info = {}
-            info['x'] = float(feature['geometry']['coordinates'][0])
-            info['y'] = float(feature['geometry']['coordinates'][1])
-            info['neighbors'] = feature['properties']['neighbors']
-            info['floor'] = feature['properties']['floor']
-            self.graph[feature['properties']['id']] = info
+        tree = ET.parse('/home/masettizan/ros2_ws/src/wvh_guide_demo/svg/WVH.svg')
+        root = tree.getroot()
+        self.graph = {}
         
-        self.elevators = ['f1_p7', 'f2_p1', 'f3_p1']
-        # self.stairs = ['f1_p18', 'f1_p25', 'f2_p14', 'f2_p15', 'f3_p3', 'f3_p17']
+        if list(root):
+            for child in list(root):
+                self.element_to_dict(child)
+
+        self.elevators = ['f1_elevator', 'f2_elevator', 'f3_elevator', 'f4_elevator']
+
+    def element_to_dict(self, element):
+        attributes = element.attrib
+        if attributes.get('id') is None:
+            return
+        
+        element_dict = {}
+        element_dict['x'] = float(attributes.get('x')) * self.CONVERSION
+        element_dict['y'] = float(attributes.get('y')) * self.CONVERSION
+        element_dict['neighbors'] = attributes.get('neighbors').split(',')
+        element_dict['floor'] = int(attributes.get('floor'))
+        
+        self.graph[attributes.get('id')] = element_dict
 
     # generate edges for path through graph 
     def generate_edges(self, path): 
@@ -79,6 +88,7 @@ class Graph(Node):
         self.draw_floor(1, 'purple')
         self.draw_floor(2, 'orange')
         self.draw_floor(3, 'red')
+        self.draw_floor(4, 'lightblue')
 
     def draw_floor(self, floor, color):
         nodes = self.add_node_to_graph(floor)
@@ -166,6 +176,10 @@ class Graph(Node):
     def get_angle(self, heading, u, v):
         # vector difference between 'a' and 'b' - hypotonuse
         goal_vector = v - u
+
+        if not np.any(goal_vector):
+            return -1*heading, 180, 1
+        
         goal_norm = goal_vector/np.linalg.norm(goal_vector)
 
         heading_norm = heading/np.linalg.norm(heading)
@@ -291,13 +305,13 @@ def main():
 
         current_position = 'f1_p1' # given in name
         current_orientation = np.array([-1, 0])
-        directions, current_orientation, current_position = traverse.get_directions(current_orientation, current_position, 'f3_p2')
+        directions, current_orientation, current_position = traverse.get_directions(current_orientation, current_position, 'f2_240')
         result = ', '.join(traverse.simplify(directions))
         print(result)
         #plt.show()
 
-        # input("press enter to close graph")
-        # plt.close()
+        input("press enter to close graph")
+        plt.close()
     except KeyboardInterrupt:
         pass
     rclpy.shutdown()

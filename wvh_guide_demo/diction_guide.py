@@ -245,7 +245,7 @@ def main():
 
         current_position = 'f1_p1' # given in name
         current_orientation = np.array([-1, 0])
-        directions, current_orientation, current_position = traverse.get_directions(current_orientation, current_position, 'f3_p2')
+        directions, current_orientation, current_position = traverse.get_directions(current_orientation, current_position, 'f2_240')
         result = ', '.join(traverse.simplify(directions))
         print(result)
     except KeyboardInterrupt:
