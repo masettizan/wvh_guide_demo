@@ -20,19 +20,15 @@ class Graph(Node):
         super().__init__('graph')
         self.graph = {}
         # fill in graph variable
-        
-        self.G1 = nx.Graph()
-        self.G2 = nx.Graph()
-        self.G3 = nx.Graph()
-        self.G4 = nx.Graph()
+        self.subplots = [nx.Graph(), nx.Graph(), nx.Graph(), nx.Graph()]
         self.scaling = [[2.63, 840, 2.63, 55],
-              [1.05, 320, 1.05, 0],
-              [.89, 240, .89, 30],
-              [1.8, 545, 1.8, -820]]
+                        [1.05, 320, 1.05, 0],
+                        [.89, 240, .89, 30],
+                        [1.8, 545, 1.8, -820]]
 
         self.set_locations()
         self.setup_map()
-        # plt.show(block=False)
+        plt.show(block=False)
 
     def set_locations(self):
         tree = ET.parse('/home/masettizan/ros2_ws/src/wvh_guide_demo/svg/WVH.svg')
@@ -56,6 +52,19 @@ class Graph(Node):
             for child in list(root):
                 self.graph = element_to_dict(child, self.graph)
 
+    def setup_map(self):
+        colors = ['purple', 'orange', 'red', 'lightblue']
+    
+        plt.ion()
+        fig, self.axes = plt.subplots(nrows=2, ncols=2, figsize = [10, 8])
+
+        for i in range(4):
+            image = mpimg.imread(f'/home/masettizan/ros2_ws/src/wvh_guide_demo/svg/images/WVH_{i+1}.jpg')
+            ax = self.edge_location(i+1)
+            ax.imshow(image)
+            
+            self.draw_floor(i+1 , colors[i], self.scaling[i], ax)        
+
     # generate edges for path through graph 
     def generate_edges(self, path): 
         edges = [] 
@@ -67,78 +76,67 @@ class Graph(Node):
             edges.append((node, next_node)) 
         return edges 
 
-    def add_node_to_graph(self, floor, g,size):
+    def add_node_to_graph(self, floor, scale):
         nodes = []
         for id, data in self.graph.items():
             if data['floor'] == floor:
-                print(size)
-                g.add_node(id, pos=(data['x'] * size[0] - size[1], data['y']*size[2] +size[3]), floor=data['floor'], neighbors=data['neighbors'])
+                self.subplots[floor - 1].add_node(id,
+                           pos=(data['x']*scale[0] - scale[1], 
+                                data['y']*scale[2] + scale[3]
+                            ), 
+                           floor=data['floor'], 
+                           neighbors=data['neighbors']
+                )
                 nodes.append(id)
         return nodes
 
-    def add_edges_to_graph(self, floor, g):
+    def add_edges_to_graph(self, floor):
         edges = []
         for id, data in self.graph.items():
             if data['floor'] == floor:
                 for neighbor in data['neighbors']:
                     if id[:2] == neighbor[:2]:
-                        g.add_edge(id, neighbor)
+                        self.subplots[floor-1].add_edge(id, neighbor)
                         if (neighbor, id) not in edges:
                             edges.append((id, neighbor))
         return edges
     
-    def edge_location(self, floor, ax):
+    def edge_location(self, floor):
         if floor == 1:
-            G=self.G1
-            axe=ax[0,0]
+            axe=self.axes[0,0]
         elif floor == 2:
-            G=self.G2
-            axe=ax[0,1]
+            axe=self.axes[0,1]
         elif floor == 3:
-            G=self.G3
-            axe=ax[1,0]
+            axe=self.axes[1,0]
         else:
-            G=self.G4
-            axe=ax[1,1]
-        return G, axe
-    
-    def setup_map(self):
-        colors = ['purple', 'orange', 'red', 'lightblue']
-    
-        plt.ion()
-        fig, axes = plt.subplots(nrows=2, ncols=2, figsize = [10, 8])
-        self.axe_hateme = axes
-        for i in range(4):
-            image = mpimg.imread(f'/home/masettizan/ros2_ws/src/wvh_guide_demo/svg/images/WVH_{i+1}.jpg')
-            G, ax = self.edge_location(i+1, axes )
-            ax.imshow(image)
-            
-            self.draw_floor(i+1 , colors[i],G, self.scaling[i],ax)
+            axe=self.axes[1,1]
+        return axe
 
-        plt.show(block=False)
-
-    def draw_floor(self, floor, color,g,size, ax):
-        nodes = self.add_node_to_graph(floor,g,size)
-        edges = self.add_edges_to_graph(floor,g)
-        pos = nx.get_node_attributes(g, 'pos')
-        nx.draw(g, 
-                pos, 
-                nodelist=nodes, 
-                edgelist=edges, 
-                node_size=10, 
-                node_color=color, 
-                edge_color=color, 
-                style='dashed', 
-                with_labels=False, 
-                ax=ax)
+    def draw_floor(self, floor, color, scale, ax):
+        nodes = self.add_node_to_graph(floor, scale)
+        edges = self.add_edges_to_graph(floor)
+        pos = nx.get_node_attributes(self.subplots[floor - 1], 'pos')
+        nx.draw(
+            self.subplots[floor - 1], 
+            pos, 
+            nodelist=nodes, 
+            edgelist=edges, 
+            node_size=10, 
+            node_color=color, 
+            edge_color=color, 
+            style='dashed', 
+            with_labels=False, 
+            ax=ax
+        )
 
     def draw_edge(self, edge):
         u = edge[0][0]
         v = edge[0][1]
         if u[:2] == v[:2]:
-            G, axe = self.edge_location(int(v[1:2]),self.axe_hateme)
-            pos = nx.get_node_attributes(G, 'pos')
-            nx.draw_networkx_edges(G, pos, edgelist=edge, width=2, ax=axe)
+            floor = int(v[1:2])
+            ax = self.edge_location(floor)
+            pos = nx.get_node_attributes(self.subplots[floor - 1], 'pos')
+            nx.draw_networkx_edges(self.subplots[floor - 1], pos, edgelist=edge, width=2, ax=ax)
         plt.pause(1)
 
     def calculate_edge_cost(self, node_id, neighbor_id):
@@ -264,7 +262,7 @@ class Graph(Node):
             elif isinstance(movement, tuple) and 'stairs' in movement[0]: # assuming all stair exits face the same direction: -1, 0 aka. pi
                 orientation = np.array([-1, 0]) 
                 directions.append(('vert', 'continue facing exit of stairs'))
-            print(edge)
+
             self.draw_edge([edge])
             plt.pause(1)  # to have it plot out in real time and not immedietly close you need this line
             
@@ -339,9 +337,8 @@ def main():
         directions, current_orientation, current_position = traverse.get_directions(current_orientation, current_position, 'f2_240')
         result = ', '.join(traverse.simplify(directions))
         print(result)
-        #plt.show()
 
-        input("press enter to close graph")
+        input("\n press enter to close graph \n")
         plt.close()
     except KeyboardInterrupt:
         pass
