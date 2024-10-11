@@ -72,8 +72,37 @@ import matplotlib.pyplot as plt
 
 # # Keep the script running until all windows are closed
 # plt.show()
-img = Image.open(f'/home/masettizan/ros2_ws/src/wvh_guide_demo/svg/images/WVH_{4}.jpg')
-print(img.size)
+# img = Image.open(f'/home/masettizan/ros2_ws/src/wvh_guide_demo/svg/images/WVH_{4}.jpg')
+# print(img.size)
 
-img = img.resize((2357,3316), Image.ANTIALIAS)
-img.save(f'/home/masettizan/ros2_ws/src/wvh_guide_demo/svg/images/WVH_{4}_size.jpg')
+# img = img.resize((2357,3316), Image.ANTIALIAS)
+# img.save(f'/home/masettizan/ros2_ws/src/wvh_guide_demo/svg/images/WVH_{4}_size.jpg')
+
+
+# fig = plt.figure(figsize = (12.5,3))
+# ax = plt.subplot(1,3,1)
+# img=mpimg.imread('/home/masettizan/ros2_ws/src/wvh_guide_demo/svg/images/WVH_1.jpg')
+# plt.imshow(img)
+# ax = plt.subplot(1,3,2)
+# img=mpimg.imread('/home/masettizan/ros2_ws/src/wvh_guide_demo/svg/images/WVH_2.jpg')
+# plt.imshow(img)
+# ax = plt.subplot(1,3,3)
+# img=mpimg.imread('/home/masettizan/ros2_ws/src/wvh_guide_demo/svg/images/WVH_3.jpg')
+# plt.imshow(img)
+# plt.colorbar()
+
+fig, axes = plt.subplots(nrows=2, ncols=2, figsize = [10, 8])
+# for i in range(4):
+image = mpimg.imread(f'/home/masettizan/ros2_ws/src/wvh_guide_demo/svg/images/WVH_{1}.jpg')
+axes[0,0].imshow(image)
+image = mpimg.imread(f'/home/masettizan/ros2_ws/src/wvh_guide_demo/svg/images/WVH_{2}.jpg')
+axes[0,1].imshow(image)
+image = mpimg.imread(f'/home/masettizan/ros2_ws/src/wvh_guide_demo/svg/images/WVH_{3}.jpg')
+axes[1,0].imshow(image)
+image = mpimg.imread(f'/home/masettizan/ros2_ws/src/wvh_guide_demo/svg/images/WVH_{4}.jpg')
+axes[1,1].imshow(image)
+# Tweak the following numbers until it is right for you
+plt.subplots_adjust(right = .91)
+# cbar_ax = fig.add_axes([.92, 0.108, 0.03, 0.772]) 
+# cbar = fig.colorbar(image, cax=cbar_ax)
+plt.show()

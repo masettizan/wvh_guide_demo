@@ -12,23 +12,6 @@ import matplotlib.image as mpimg
 from PIL import Image
 
 
-def set_locations():
-    graph = {}
-    with open('/home/masettizan/ros2_ws/src/wvh_guide_demo/json/floors.geojson') as f:
-        data = geojson.load(f)
-        
-    for feature in data['features']:
-        info = {}
-        info['x'] = float(feature['geometry']['coordinates'][0])
-        info['y'] = float(feature['geometry']['coordinates'][1])
-        info['neighbors'] = feature['properties']['neighbors']
-        info['floor'] = feature['properties']['floor']
-        graph[feature['properties']['id']] = info
-    
-    elevators = ['f1_p7', 'f2_p1', 'f3_p1']
-
-    return graph, elevators
-
 def svg():
     tree = ET.parse('/home/masettizan/ros2_ws/src/wvh_guide_demo/svg/WVH.svg')
     root = tree.getroot()
@@ -56,8 +39,7 @@ def add_node_to_graph(graph, floor, g,size):
     nodes = []
     for id, data in graph.items():
         if data['floor'] == floor:
-# g.add_node(id, pos=(data['x']*2.63 - 840, data['y']*2.63 + 55), floor=data['floor'], neighbors=data['neighbors'])
-
+            print(size)
             g.add_node(id, pos=(data['x'] * size[0] - size[1], data['y']*size[2] +size[3]), floor=data['floor'], neighbors=data['neighbors'])
             nodes.append(id)
     return nodes
@@ -74,12 +56,6 @@ def add_edges_to_graph(graph, floor,g):
     return edges
 
 def setup_svg(graph):
-    # img = Image.open('/home/masettizan/ros2_ws/src/wvh_guide_demo/svg/WVH_1.jpg')
-    # print(img.size)
-
-    # img = img.resize((3289, 2538), Image.ANTIALIAS)
-    # img.save('/home/masettizan/ros2_ws/src/wvh_guide_demo/svg/WVH_1_size.jpg')
-
     plt.figure(figsize=(10,8))
 
     img=mpimg.imread('/home/masettizan/ros2_ws/src/wvh_guide_demo/svg/WVH_1_size.jpg')
@@ -91,46 +67,77 @@ def setup_svg(graph):
     plt.show()
 
 def setup_map(graph):
-    # plt.ion()
-    G1 = nx.Graph()
-    G2 = nx.Graph()
-    G3 = nx.Graph()
-    G4 = nx.Graph()
+
     graphs = [G1,G2,G3,G4]
     colors = ['purple', 'orange', 'red', 'lightblue']
-    sizing = [[2.63, 840, 2.63, 55],
-              [1.05, 320, 1.05, 0],
-              [.89, 240, .89, 30],
-              [1.8, 545, 1.8, -820]]
-    for i, g in enumerate(graphs):
-        # img = Image.open(f'/home/masettizan/ros2_ws/src/wvh_guide_demo/svg/images/WVH_{i+1}.jpg')
-        # print(img.size)
+    
+    plt.ion()
+    fig, axes = plt.subplots(nrows=2, ncols=2, figsize = [10, 8])
+    for i in range(4):
+        image = mpimg.imread(f'/home/masettizan/ros2_ws/src/wvh_guide_demo/svg/images/WVH_{i+1}.jpg')
+        G, ax = edge_location(i+1, axes )
+        ax.imshow(image)
+        
+        draw_floor(graph, i+1 , colors[i],G, sizing[i],ax)
 
-        # img = img.resize((3289, 2538), Image.ANTIALIAS)
-        # img.save(f'/home/masettizan/ros2_ws/src/wvh_guide_demo/svg/images/WVH_{i+1}_size.jpg')
-
-        plt.figure(figsize=(10,8))
-        img=mpimg.imread(f'/home/masettizan/ros2_ws/src/wvh_guide_demo/svg/images/WVH_{i+1}.jpg')
-        plt.imshow(img)
-        draw_floor(graph, i+1, colors[i],g, sizing[i])  
-        plt.show(block=False)
+    plt.show(block=False)
+    edges = [('f1_p1', 'f1_elevator'), ('f1_elevator', 'f2_elevator'), ('f2_elevator', 'f2_p0'), ('f2_p0', 'f2_p32'), ('f2_p32', 'f2_p31'), ('f2_p31', 'f2_p29'), ('f2_p29', 'f2_p28'), ('f2_p28', 'f2_p27'), ('f2_p27', 'f2_240')]
+    for edge in edges:
+        draw_edge([edge], axes)
     plt.show()
 
-def draw_floor(graph, floor, color,g,size):
+def draw_floor(graph, floor, color,g,size, ax):
     nodes = add_node_to_graph(graph, floor,g,size)
     edges = add_edges_to_graph(graph, floor,g)
     pos = nx.get_node_attributes(g, 'pos')
-    nx.draw(g, pos, nodelist=nodes, edgelist=edges, node_size=20, node_color=color, edge_color=color, style='dashed', with_labels=False)
+    nx.draw(g, 
+            pos, 
+            nodelist=nodes, 
+            edgelist=edges, 
+            node_size=10, 
+            node_color=color, 
+            edge_color=color, 
+            style='dashed', 
+            with_labels=False, 
+            ax=ax)
 
-def draw_path(path):
-    pos = nx.get_node_attributes(G, 'pos')
-    nx.draw_networkx_edges(G, pos, edgelist=path, width=2)
+def draw_edge(edge, ax):
+    u = edge[0][0]
+    v = edge[0][1]
+    if u[:2] == v[:2]:
+        G, axe = edge_location(int(v[1:2]),ax)
+        pos = nx.get_node_attributes(G, 'pos')
+        nx.draw_networkx_edges(G, pos, edgelist=edge, width=2, ax=axe)
+    plt.pause(1)
 
-G = nx.Graph()
+def edge_location(floor, ax):
+    if floor == 1:
+        G=G1
+        axe=ax[0,0]
+    elif floor == 2:
+        G=G2
+        axe=ax[0,1]
+    elif floor == 3:
+        G=G3
+        axe=ax[1,0]
+    else:
+        G=G4
+        axe=ax[1,1]
+    return G, axe
+
+G1 = nx.Graph()
+G2 = nx.Graph()
+G3 = nx.Graph()
+G4 = nx.Graph()
 graph = svg()
-# graph, elevators = set_locations()
+
+sizing = [[2.63, 840, 2.63, 55],
+              [1.05, 320, 1.05, 0],
+              [.89, 240, .89, 30],
+              [1.8, 545, 1.8, -820]]
 setup_map(graph)
+
 # draw_path(('f1_p1', 'f1_p2'))
-# input("press enter")
-# plt.close()
+input("press enter")
+plt.close()
 # plt.show()
