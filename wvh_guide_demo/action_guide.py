@@ -19,7 +19,7 @@ class Graph(Node):
         super().__init__('graph')
         self.graph = {}
         # fill in graph variable
-        self.set_locations()
+        self._set_locations()
         self.directions_callback_group = MutuallyExclusiveCallbackGroup() # handles one callback at a time
 
         self._action_server = ActionServer(
@@ -50,33 +50,30 @@ class Graph(Node):
 
         return result
 
-
-    def set_locations(self):
+    def _set_locations(self):
         tree = ET.parse('/home/masettizan/ros2_ws/src/wvh_guide_demo/svg/WVH.svg')
         root = tree.getroot()
         self.graph = {}
+        self.elevators = ['f1_elevator', 'f2_elevator', 'f3_elevator', 'f4_elevator']
+
+        def element_to_dict(element, info):
+            if element.attrib.get('id') is not None:
+                element_dict = {}
+                element_dict['x'] = float(element.attrib.get('x'))
+                element_dict['y'] = float(element.attrib.get('y'))
+                element_dict['neighbors'] = element.attrib.get('neighbors').split(',')
+                element_dict['floor'] = int(element.attrib.get('floor'))
+                
+            
+                info[element.attrib.get('id')] = element_dict
+            return info
         
         if list(root):
             for child in list(root):
-                self.element_to_dict(child)
-
-        self.elevators = ['f1_elevator', 'f2_elevator', 'f3_elevator', 'f4_elevator']
-
-    def element_to_dict(self, element):
-        attributes = element.attrib
-        if attributes.get('id') is None:
-            return
-        
-        element_dict = {}
-        element_dict['x'] = float(attributes.get('x')) * self.CONVERSION
-        element_dict['y'] = float(attributes.get('y')) * self.CONVERSION
-        element_dict['neighbors'] = attributes.get('neighbors').split(',')
-        element_dict['floor'] = int(attributes.get('floor'))
-        
-        self.graph[attributes.get('id')] = element_dict
+                self.graph = element_to_dict(child, self.graph)
 
     # generate edges for path through graph 
-    def generate_edges(self, path): 
+    def _generate_edges(self, path): 
         edges = [] 
     
         for idx in range(len(path) - 1):
@@ -86,7 +83,7 @@ class Graph(Node):
             edges.append((node, next_node)) 
         return edges 
 
-    def calculate_edge_cost(self, node_id, neighbor_id):
+    def _calculate_edge_cost(self, node_id, neighbor_id):
         node = self.graph[node_id]
         neighbor = self.graph[neighbor_id]
 
@@ -120,13 +117,13 @@ class Graph(Node):
                 return result[::-1] # return resvered path
 
             for neighbor in self.graph[node]['neighbors']:
-                weight = cost + self.calculate_edge_cost(node, neighbor)
+                weight = cost + self._calculate_edge_cost(node, neighbor)
 
                 if neighbor not in path or weight < path[neighbor][1]:
                     path[neighbor] = (node, weight)
                     heapq.heappush(queue, (weight, neighbor))
         
-    def get_orientation_directions(self, heading, edge):
+    def _get_orientation_directions(self, heading, edge):
         # find difference in starting node to end node of edge
         vector_u = np.array([self.graph[edge[0]]['x'], self.graph[edge[0]]['y']]) # vector a - where we are
         vector_v = np.array([self.graph[edge[1]]['x'], self.graph[edge[1]]['y']]) # vector b - where we are going
@@ -140,7 +137,7 @@ class Graph(Node):
         direction = 'cw' if theta_direction == -1 else 'ccw'
         return head, (round(theta), theta_direction)        
 
-    def get_angle_direction(self, heading, goal):
+    def _get_angle_direction(self, heading, goal):
         # these vectors are what were taking the dot product of in get_angle()
         cross = np.cross(heading, goal) 
 
@@ -149,7 +146,7 @@ class Graph(Node):
         else:
             return -1 # negative (-), cw
     
-    def get_angle(self, heading, u, v):
+    def _get_angle(self, heading, u, v):
         # vector difference between 'a' and 'b' - hypotonuse
         goal_vector = v - u
         if not np.any(goal_vector):
@@ -167,7 +164,7 @@ class Graph(Node):
         return goal_norm, np.degrees(theta), theta_direction
 
     # return directions for movement for given edge, update current position
-    def get_translation_directions(self, current, edge): 
+    def _get_translation_directions(self, current, edge): 
         vector_u = np.array([self.graph[edge[0]]['x'], self.graph[edge[0]]['y']]) # vector a - where we are
         vector_v = np.array([self.graph[edge[1]]['x'], self.graph[edge[1]]['y']]) # vector b - where we are going
 
@@ -189,7 +186,7 @@ class Graph(Node):
 
     def get_directions(self, heading, start, goal):
         path = self.find_path(start, goal)
-        edges = self.generate_edges(path)
+        edges = self._generate_edges(path)
 
         directions = []
         orientation = heading
@@ -197,7 +194,7 @@ class Graph(Node):
 
         # for each edge in the path calculate directions
         for edge in edges:
-            orientation, turn = self.get_orientation_directions(orientation, edge)
+            orientation, turn = self._get_orientation_directions(orientation, edge)
             position, movement = self.get_translation_directions(position, edge)
             
             directions.append(('rot', turn))
@@ -214,7 +211,7 @@ class Graph(Node):
         # return directions in array, along with updated user info
         return directions, orientation, position
 
-    def simplify_rotation(self, directions):
+    def _simplify_rotation(self, directions):
         new_directions = []
         for step in directions:
             type, action = step
@@ -232,7 +229,7 @@ class Graph(Node):
                 new_directions.append(step)
         return new_directions
 
-    def simplify_translation(self, directions):
+    def _simplify_translation(self, directions):
         index = 0
 
         while index < len(directions) - 1:

@@ -39,7 +39,7 @@ class Graph(Node):
                 self.graph = element_to_dict(child, self.graph)
 
     # generate edges for path through graph 
-    def generate_edges(self, path): 
+    def _generate_edges(self, path): 
         edges = [] 
     
         for idx in range(len(path) - 1):
@@ -49,7 +49,7 @@ class Graph(Node):
             edges.append((node, next_node)) 
         return edges 
 
-    def calculate_edge_cost(self, node_id, neighbor_id):
+    def _calculate_edge_cost(self, node_id, neighbor_id):
         node = self.graph[node_id]
         neighbor = self.graph[neighbor_id]
 
@@ -83,19 +83,19 @@ class Graph(Node):
                 return result[::-1] # return resvered path
 
             for neighbor in self.graph[node]['neighbors']:
-                weight = cost + self.calculate_edge_cost(node, neighbor)
+                weight = cost + self._calculate_edge_cost(node, neighbor)
 
                 if neighbor not in path or weight < path[neighbor][1]:
                     path[neighbor] = (node, weight)
                     heapq.heappush(queue, (weight, neighbor))
         
-    def get_orientation_directions(self, heading, edge):
+    def _get_orientation_directions(self, heading, edge):
         # find difference in starting node to end node of edge
         vector_u = np.array([self.graph[edge[0]]['x'], self.graph[edge[0]]['y']]) # vector a - where we are
         vector_v = np.array([self.graph[edge[1]]['x'], self.graph[edge[1]]['y']]) # vector b - where we are going
         
         # heading & head is in vector format
-        head, theta, theta_direction = self.get_angle(heading, vector_u, vector_v)
+        head, theta, theta_direction = self._get_angle(heading, vector_u, vector_v)
 
         if theta == 0.0:
             return head, 0
@@ -103,7 +103,7 @@ class Graph(Node):
         direction = 'cw' if theta_direction == -1 else 'ccw'
         return head, (round(theta), theta_direction)        
 
-    def get_angle_direction(self, heading, goal):
+    def _get_angle_direction(self, heading, goal):
         # these vectors are what were taking the dot product of in get_angle()
         cross = np.cross(heading, goal) 
 
@@ -112,7 +112,7 @@ class Graph(Node):
         else:
             return -1 # negative (-), cw
     
-    def get_angle(self, heading, u, v):
+    def _get_angle(self, heading, u, v):
         # vector difference between 'a' and 'b' - hypotonuse
         goal_vector = v - u
         if not np.any(goal_vector):
@@ -125,12 +125,12 @@ class Graph(Node):
         cos_theta = np.dot(heading_norm, goal_norm)
 
         theta = np.arccos(cos_theta)
-        theta_direction = self.get_angle_direction(heading_norm, goal_norm)
+        theta_direction = self._get_angle_direction(heading_norm, goal_norm)
 
         return goal_norm, np.degrees(theta), theta_direction
 
     # return directions for movement for given edge, update current position
-    def get_translation_directions(self, current, edge): 
+    def _get_translation_directions(self, current, edge): 
         vector_u = np.array([self.graph[edge[0]]['x'], self.graph[edge[0]]['y']]) # vector a - where we are
         vector_v = np.array([self.graph[edge[1]]['x'], self.graph[edge[1]]['y']]) # vector b - where we are going
 
@@ -152,7 +152,7 @@ class Graph(Node):
 
     def get_directions(self, heading, start, goal):
         path = self.find_path(start, goal)
-        edges = self.generate_edges(path)
+        edges = self._generate_edges(path)
 
         directions = []
         orientation = heading
@@ -160,8 +160,8 @@ class Graph(Node):
 
         # for each edge in the path calculate directions
         for edge in edges:
-            orientation, turn = self.get_orientation_directions(orientation, edge)
-            position, movement = self.get_translation_directions(position, edge)
+            orientation, turn = self._get_orientation_directions(orientation, edge)
+            position, movement = self._get_translation_directions(position, edge)
             
             directions.append(('rot', turn))
             directions.append(('move', movement))
@@ -177,7 +177,7 @@ class Graph(Node):
         # return directions in array, along with updated user info
         return directions, orientation, position
 
-    def simplify_rotation(self, directions):
+    def _simplify_rotation(self, directions):
         new_directions = []
         for step in directions:
             type, action = step
@@ -195,7 +195,7 @@ class Graph(Node):
                 new_directions.append(step)
         return new_directions
 
-    def simplify_translation(self, directions):
+    def _simplify_translation(self, directions):
         index = 0
 
         while index < len(directions) - 1:
@@ -214,8 +214,8 @@ class Graph(Node):
         return directions
 
     def simplify(self, directions):
-        dir = self.simplify_rotation(directions)
-        dir = self.simplify_translation(dir)
+        dir = self._simplify_rotation(directions)
+        dir = self._simplify_translation(dir)
 
         result = []
 
