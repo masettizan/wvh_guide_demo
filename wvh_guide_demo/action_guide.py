@@ -4,8 +4,13 @@ import rclpy
 import heapq
 
 from rclpy.node import Node
+from rclpy.action import ActionServer
 import xml.etree.ElementTree as ET
 import numpy as np
+from wvh_guide_demo_msgs.action import Directions
+
+from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
+from rclpy.executors import MultiThreadedExecutor
 
 class Graph(Node):
     CONVERSION = 3/17
@@ -15,28 +20,60 @@ class Graph(Node):
         self.graph = {}
         # fill in graph variable
         self.set_locations()
+        self.directions_callback_group = MutuallyExclusiveCallbackGroup() # handles one callback at a time
+
+        self._action_server = ActionServer(
+            self,
+            Directions,
+            'directions',
+            self.directions_callback,
+            callback_group=self.directions_callback_group
+        )
+    
+    def directions_callback(self, goal_handle):
+        self.get_logger().info("Executing Directions goal...")
+
+        self._goal_handle = goal_handle
+        self.goal = goal_handle
+
+        goal = self._goal_handle.request
+        current_orientation = np.array(goal.orientation, dtype=np.float32)
+        current_position = np.array(goal.position, dtype=np.float32)
+        end_point = goal.goal
+
+        result = Directions.Result()
+
+        directions, end_orientation, end_position = self.get_directions(current_orientation, current_position, end_point)
+        result.directions = ', '.join(self.simplify(directions))
+        result.orientation = end_orientation
+        result.position = end_position
+
+        return result
+
 
     def set_locations(self):
         tree = ET.parse('/home/masettizan/ros2_ws/src/wvh_guide_demo/svg/WVH.svg')
         root = tree.getroot()
         self.graph = {}
-        self.elevators = ['f1_elevator', 'f2_elevator', 'f3_elevator', 'f4_elevator']
-
-        def element_to_dict(element, info):
-            if element.attrib.get('id') is not None:
-                element_dict = {}
-                element_dict['x'] = float(element.attrib.get('x'))
-                element_dict['y'] = float(element.attrib.get('y'))
-                element_dict['neighbors'] = element.attrib.get('neighbors').split(',')
-                element_dict['floor'] = int(element.attrib.get('floor'))
-                
-            
-                info[element.attrib.get('id')] = element_dict
-            return info
         
         if list(root):
             for child in list(root):
-                self.graph = element_to_dict(child, self.graph)
+                self.element_to_dict(child)
+
+        self.elevators = ['f1_elevator', 'f2_elevator', 'f3_elevator', 'f4_elevator']
+
+    def element_to_dict(self, element):
+        attributes = element.attrib
+        if attributes.get('id') is None:
+            return
+        
+        element_dict = {}
+        element_dict['x'] = float(attributes.get('x')) * self.CONVERSION
+        element_dict['y'] = float(attributes.get('y')) * self.CONVERSION
+        element_dict['neighbors'] = attributes.get('neighbors').split(',')
+        element_dict['floor'] = int(attributes.get('floor'))
+        
+        self.graph[attributes.get('id')] = element_dict
 
     # generate edges for path through graph 
     def generate_edges(self, path): 

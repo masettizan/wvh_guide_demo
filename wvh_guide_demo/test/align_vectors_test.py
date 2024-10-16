@@ -96,3 +96,4 @@ def cross():
     print(np.cross(a, b))
 
 test()
+print(type(np.array([1.1, 1.2])), type([1.1,1.2]))
