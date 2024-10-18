@@ -53,7 +53,14 @@ class Graph(Node):
 
         result = Directions.Result()
 
-        directions, end_orientation, end_position = self.get_directions(current_orientation, current_position, end_point)
+        if end_point in self.graph.keys():
+            goal_node = end_point
+        else:
+            converted_type = self.get_node_from_type(current_position, end_point)
+            self.get_logger().info(f"goal .... {converted_type}")
+            goal_node = converted_type
+
+        directions, end_orientation, end_position = self.get_directions(current_orientation, current_position, goal_node)
         result.directions = ', '.join(self.simplify(directions))
         ori = end_orientation.astype(np.float32)
         pos = end_position.astype(np.float32)
@@ -93,7 +100,7 @@ class Graph(Node):
                 element_dict['y'] = float(element.attrib.get('y'))
                 element_dict['neighbors'] = element.attrib.get('neighbors').split(',')
                 element_dict['floor'] = int(element.attrib.get('floor'))
-                
+                element_dict['type'] = element.attrib.get('type')
             
                 info[element.attrib.get('id')] = element_dict
             return info

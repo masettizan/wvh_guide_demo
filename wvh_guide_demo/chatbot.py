@@ -9,7 +9,7 @@ from parcs_stt_tts_msgs.srv import Stop
 import time
 from parcs_stt_tts_msgs.action import Listen
 from parcs_stt_tts_msgs.action import Recalibrate
-from wvh_guide_demo_msgs.action import Location
+# from wvh_guide_demo_msgs.action import Location
 
 class Chatbot(Node):
 
@@ -17,7 +17,7 @@ class Chatbot(Node):
         super().__init__('chatbot')
 
         self._directions_action_client = ActionClient(self, Directions, 'directions')
-        self._locations_action_client = ActionClient(self, Location, 'location')
+        # self._locations_action_client = ActionClient(self, Location, 'location')
         
         self._tts_action_client = ActionClient(self, TTS, 'tts')
         self._listen_action_client = ActionClient(self, Listen, 'listen')
@@ -37,11 +37,12 @@ class Chatbot(Node):
         self.directions = ''
         self.transcript = ''
         
-        self.send_listen_goal()
-        self.send_directions_goal(self.current_ori, self.current_node, self.goal_node)
+        # self.send_listen_goal()
+        self.send_directions_goal("bathroom")
 
     '''FUNCTION CALLING LLMS'''
     def define_callable_functs(self):
+        self.tools = []
         get_directions = {
             'name': 'send_directions_goal',
             'description': 'request directions from action server, using given starting position, orientation and a given goal location',
@@ -51,27 +52,27 @@ class Chatbot(Node):
                     'ori': {
                         'type': 'float32[]',
                         'description': 'The users starting orientation'
-                    },
-                    'pos': {
-                        'type': 'string',
-                        'description': 'The users starting node position'
-                    },
-                    'goal': {
-                        'type': 'string',
-                        'description': 'The goal location for the user'
                     }
+                    # 'pos': {
+                    #     'type': 'string',
+                    #     'description': 'The users starting node position'
+                    # },
+                    # 'goal': {
+                    #     'type': 'string',
+                    #     'description': 'The goal location for the user'
+                    # }
                 },
-                'required': ['ori', 'pos', 'goal'],
+                'required': ['goal'],
             }
         }
-        
 
+        self.tools.append(get_directions)
 
     '''DIRECTIONS'''
-    def send_directions_goal(self, ori, pos, goal):
+    def send_directions_goal(self, goal):
         goal_msg = Directions.Goal()
-        goal_msg.orientation = ori
-        goal_msg.position = pos
+        goal_msg.orientation = self.current_ori
+        goal_msg.position = self.current_node
         goal_msg.goal = goal
 
         self.get_logger().info("Waiting for Directions action server...")
