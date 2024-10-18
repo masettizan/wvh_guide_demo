@@ -8,6 +8,7 @@ from rclpy.action import ActionServer
 import xml.etree.ElementTree as ET
 import numpy as np
 from wvh_guide_demo_msgs.action import Directions
+from wvh_guide_demo_msgs.action import Location
 
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
 from rclpy.executors import MultiThreadedExecutor
@@ -21,6 +22,7 @@ class Graph(Node):
         # fill in graph variable
         self._set_locations()
         self.directions_callback_group = MutuallyExclusiveCallbackGroup() # handles one callback at a time
+        self.locations_callback_group = MutuallyExclusiveCallbackGroup() # handles one callback at a time
 
         self._action_server = ActionServer(
             self,
@@ -29,7 +31,15 @@ class Graph(Node):
             self.directions_callback,
             callback_group=self.directions_callback_group
         )
-    
+
+        self._location_server = ActionServer(
+            self,
+            Location,
+            'location',
+            self.locations_callback,
+            callback_group=self.locations_callback_group
+        )
+  
     def directions_callback(self, goal_handle):
         self.get_logger().info("Executing Directions goal...")
 
@@ -38,20 +48,40 @@ class Graph(Node):
 
         goal = self._goal_handle.request
         current_orientation = np.array(goal.orientation, dtype=np.float32)
-        current_position = np.array(goal.position, dtype=np.float32)
+        current_position = goal.position
         end_point = goal.goal
 
         result = Directions.Result()
 
         directions, end_orientation, end_position = self.get_directions(current_orientation, current_position, end_point)
         result.directions = ', '.join(self.simplify(directions))
-        result.orientation = end_orientation
-        result.position = end_position
+        ori = end_orientation.astype(np.float32)
+        pos = end_position.astype(np.float32)
+        result.orientation = ori.tolist()
+        result.position = pos.tolist()
 
         return result
 
+    def locations_callback(self, goal_handle):
+        self.get_logger().info("Executing Locations goal...")
+        
+        request = goal_handle.request
+        start_node = request.start_node
+        goal = request.type
+
+        result = Directions.Result()
+
+        if goal in self.graph.keys():
+            result.goal_node = goal
+        else:
+            converted_type = self.get_node_from_type(start_node, goal)
+            result.goal_node = converted_type
+            
+        return result
+
     def _set_locations(self):
-        tree = ET.parse('/home/masettizan/ros2_ws/src/wvh_guide_demo/svg/WVH.svg')
+        #TODO: switch based on device
+        tree = ET.parse('/home/hello-robot/ament_ws/src/wvh_guide_demo/svg/WVH.svg')
         root = tree.getroot()
         self.graph = {}
         self.elevators = ['f1_elevator', 'f2_elevator', 'f3_elevator', 'f4_elevator']
@@ -71,6 +101,24 @@ class Graph(Node):
         if list(root):
             for child in list(root):
                 self.graph = element_to_dict(child, self.graph)
+
+    def get_node_from_type(self, start_node, type):
+        floor = self.graph[start_node]['floor']
+        options = []
+        weights = []
+
+        for key,value in self.graph.items():
+            if value['type'] == '':
+                pass
+            if value['type'] == type:
+                options.append(key)
+        
+        for key in options:
+            path, weight = self.find_path(start_node, key)
+            weights.append(weight)
+
+        idx = weights.index(min(weights))
+        return options[idx]
 
     # generate edges for path through graph 
     def _generate_edges(self, path): 
@@ -102,6 +150,7 @@ class Graph(Node):
     # find path through dijkstra from start to goal in the graph
     def find_path(self, start, goal):
         queue = []
+        total_weight = 0
 
         heapq.heappush(queue, (0, start))
         path = {start: (None, 0)} # prev node, cost
@@ -114,13 +163,14 @@ class Graph(Node):
                 while node is not None:
                     result.append(node)
                     node = path[node][0]
-                return result[::-1] # return resvered path
+                return result[::-1], total_weight # return resvered path
 
             for neighbor in self.graph[node]['neighbors']:
                 weight = cost + self._calculate_edge_cost(node, neighbor)
 
                 if neighbor not in path or weight < path[neighbor][1]:
                     path[neighbor] = (node, weight)
+                    total_weight += weight
                     heapq.heappush(queue, (weight, neighbor))
         
     def _get_orientation_directions(self, heading, edge):
@@ -129,7 +179,7 @@ class Graph(Node):
         vector_v = np.array([self.graph[edge[1]]['x'], self.graph[edge[1]]['y']]) # vector b - where we are going
         
         # heading & head is in vector format
-        head, theta, theta_direction = self.get_angle(heading, vector_u, vector_v)
+        head, theta, theta_direction = self._get_angle(heading, vector_u, vector_v)
 
         if theta == 0.0:
             return head, 0
@@ -159,7 +209,7 @@ class Graph(Node):
         cos_theta = np.dot(heading_norm, goal_norm)
 
         theta = np.arccos(cos_theta)
-        theta_direction = self.get_angle_direction(heading_norm, goal_norm)
+        theta_direction = self._get_angle_direction(heading_norm, goal_norm)
 
         return goal_norm, np.degrees(theta), theta_direction
 
@@ -185,7 +235,7 @@ class Graph(Node):
         return current, direction
 
     def get_directions(self, heading, start, goal):
-        path = self.find_path(start, goal)
+        path, weight = self.find_path(start, goal)
         edges = self._generate_edges(path)
 
         directions = []
@@ -195,7 +245,7 @@ class Graph(Node):
         # for each edge in the path calculate directions
         for edge in edges:
             orientation, turn = self._get_orientation_directions(orientation, edge)
-            position, movement = self.get_translation_directions(position, edge)
+            position, movement = self._get_translation_directions(position, edge)
             
             directions.append(('rot', turn))
             directions.append(('move', movement))
@@ -248,8 +298,8 @@ class Graph(Node):
         return directions
 
     def simplify(self, directions):
-        dir = self.simplify_rotation(directions)
-        dir = self.simplify_translation(dir)
+        dir = self._simplify_rotation(directions)
+        dir = self._simplify_translation(dir)
 
         result = []
 
@@ -272,12 +322,10 @@ def main():
     try:
         rclpy.init()
         traverse = Graph()
+        executor = MultiThreadedExecutor(num_threads=2)
+        executor.add_node(traverse)
 
-        current_position = 'f1_p1' # given in name
-        current_orientation = np.array([-1, 0])
-        directions, current_orientation, current_position = traverse.get_directions(current_orientation, current_position, 'f2_240')
-        result = ', '.join(traverse.simplify(directions))
-        print(result)
+        executor.spin()
     except KeyboardInterrupt:
         pass
     rclpy.shutdown()
