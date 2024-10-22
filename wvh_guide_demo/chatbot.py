@@ -7,6 +7,7 @@ from wvh_guide_demo_msgs.action import Directions
 from parcs_stt_tts_msgs.action import TTS
 from parcs_stt_tts_msgs.srv import Stop
 import time
+import json
 from parcs_stt_tts_msgs.action import Listen
 from parcs_stt_tts_msgs.action import Recalibrate
 # from wvh_guide_demo_msgs.action import Location
@@ -30,6 +31,9 @@ class Chatbot(Node):
 
         self._goal_in_progress = False
 
+        self.define_callable_functs()
+        self.generate_response = True
+
         self.current_node = 'f1_p1'
         self.current_ori = [-1.0, 0.0]
         self.current_pos = []
@@ -37,8 +41,9 @@ class Chatbot(Node):
         self.directions = ''
         self.transcript = ''
         
-        # self.send_listen_goal()
-        self.send_directions_goal("bathroom")
+        self.send_listen_goal()
+        # self.send_tts_goal('bring me to the bathroom')
+        # self.send_directions_goal("bathroom")
 
     '''FUNCTION CALLING LLMS'''
     def define_callable_functs(self):
@@ -49,24 +54,25 @@ class Chatbot(Node):
             'parameters': {
                 'type': 'object',
                 'properties': {
-                    'ori': {
-                        'type': 'float32[]',
-                        'description': 'The users starting orientation'
-                    }
+                    # 'ori': {
+                    #     'type': 'float32[]',
+                    #     'description': 'The users starting orientation'
+                    # }
                     # 'pos': {
                     #     'type': 'string',
                     #     'description': 'The users starting node position'
                     # },
-                    # 'goal': {
-                    #     'type': 'string',
-                    #     'description': 'The goal location for the user'
-                    # }
+                    'goal': {
+                        'type': 'string',
+                        'description': 'The goal location for the user'
+                    }
                 },
                 'required': ['goal'],
             }
         }
-
-        self.tools.append(get_directions)
+        self.tools.append({})
+        self.tools[0]["type"] = "function"
+        self.tools[0]['function'] = get_directions
 
     '''DIRECTIONS'''
     def send_directions_goal(self, goal):
@@ -107,6 +113,7 @@ class Chatbot(Node):
 
         self.get_logger().info('Directions result received.')
         self._goal_in_progress = False
+        self.generate_response = False
         self.send_tts_goal(self.directions)
 
     def directions_feedback_callback(self, feedback_msg):
@@ -116,9 +123,10 @@ class Chatbot(Node):
     def send_tts_goal(self, msg):
         goal_msg = TTS.Goal()
         goal_msg.tts = msg
+        goal_msg.tools = json.dumps(self.tools)
+        goal_msg.generate_response = self.generate_response
 
         self.get_logger().info("Waiting for TTS action server...")
-        # self._tts_action_client.wait_for_server()
         if not self._tts_action_client.wait_for_server(timeout_sec=5.0):
             self.get_logger().error('Action server not available after waiting')
             return
@@ -145,7 +153,14 @@ class Chatbot(Node):
         result = future.result().result
         self.get_logger().info(f'TTS result received. Said: {result.msg}')
         self._goal_in_progress = False
-    
+
+        #function calling
+        if result.tool_call != '':
+            arguments = json.loads(result.tool_call)
+            goal = arguments['goal']
+
+            self.send_directions_goal(goal)   
+
     def tts_feedback_callback(self, feedback_msg):
         self.get_logger().info(f'TTS feedback received: {feedback_msg}')
 
@@ -192,6 +207,7 @@ class Chatbot(Node):
         self.transcript = result.transcript
         self.get_logger().info(f'Listen result received. Transcript: {result.transcript}')
         self._goal_in_progress = False
+        self.send_tts_goal(self.transcript)
     
     def listen_feedback_callback(self, feedback_msg):
         self.get_logger().info(f'Listen feedback received: {feedback_msg}')
