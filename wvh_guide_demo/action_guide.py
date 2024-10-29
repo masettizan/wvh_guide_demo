@@ -8,10 +8,10 @@ from rclpy.action import ActionServer
 import xml.etree.ElementTree as ET
 import numpy as np
 from wvh_guide_demo_msgs.action import Directions
-from wvh_guide_demo_msgs.action import Location
 
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
 from rclpy.executors import MultiThreadedExecutor
+import json
 
 class Graph(Node):
     CONVERSION = 3/17
@@ -30,14 +30,6 @@ class Graph(Node):
             'directions',
             self.directions_callback,
             callback_group=self.directions_callback_group
-        )
-
-        self._location_server = ActionServer(
-            self,
-            Location,
-            'location',
-            self.locations_callback,
-            callback_group=self.locations_callback_group
         )
   
     def directions_callback(self, goal_handle):
@@ -88,26 +80,12 @@ class Graph(Node):
 
     def _set_locations(self):
         #TODO: switch based on device
-        tree = ET.parse('/home/hello-robot/ament_ws/src/wvh_guide_demo/svg/WVH.svg')
-        root = tree.getroot()
         self.graph = {}
         self.elevators = ['f1_elevator', 'f2_elevator', 'f3_elevator', 'f4_elevator']
-
-        def element_to_dict(element, info):
-            if element.attrib.get('id') is not None:
-                element_dict = {}
-                element_dict['x'] = float(element.attrib.get('x'))
-                element_dict['y'] = float(element.attrib.get('y'))
-                element_dict['neighbors'] = element.attrib.get('neighbors').split(',')
-                element_dict['floor'] = int(element.attrib.get('floor'))
-                element_dict['type'] = element.attrib.get('type')
-            
-                info[element.attrib.get('id')] = element_dict
-            return info
         
-        if list(root):
-            for child in list(root):
-                self.graph = element_to_dict(child, self.graph)
+        with open("/home/hello-robot/ament_ws/src/wvh_guide_demo/svg/WVH.json", "r") as f:
+            data = json.load(f)
+        self.graph = data
 
     def get_node_from_type(self, start_node, type):
         floor = self.graph[start_node]['floor']
@@ -335,6 +313,8 @@ def main():
         executor.spin()
     except KeyboardInterrupt:
         pass
+    traverse.destroy_node()
+    executor.shutdown()
     rclpy.shutdown()
 
 if __name__ == '__main__':

@@ -3,7 +3,7 @@
 import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionClient
-from wvh_guide_demo_msgs.action import Directions
+from wvh_guide_demo_msgs.action import Directions, Navigation
 from parcs_stt_tts_msgs.action import TTS
 from parcs_stt_tts_msgs.srv import Stop
 import time
@@ -18,6 +18,7 @@ class Chatbot(Node):
         super().__init__('chatbot')
 
         self._directions_action_client = ActionClient(self, Directions, 'directions')
+        self._navigation_action_client = ActionClient(self, Navigation, 'navigation')
         # self._locations_action_client = ActionClient(self, Location, 'location')
         
         self._tts_action_client = ActionClient(self, TTS, 'tts')
@@ -37,7 +38,7 @@ class Chatbot(Node):
         self.current_node = 'f1_p1'
         self.current_ori = [-1.0, 0.0]
         self.current_pos = []
-        self.goal_node = 'f2_240'
+        self.goal_node = ''
         self.directions = ''
         self.transcript = ''
         
@@ -70,9 +71,25 @@ class Chatbot(Node):
                 'required': ['goal'],
             }
         }
+
+        get_navigated = {
+            'name': 'send_navigation_goal',
+            'description': 'request to be navigated/accompanied by the robot to a goal from the action server, using a goal name given',
+            'parameters': {
+                'type': 'object',
+                'properties': {
+                    'goal': {
+                        'type': 'string',
+                        'description': 'The goal location to be accompanied to'
+                    }
+                },
+                'required': ['goal'],
+            }
+        }
         self.tools.append({})
         self.tools[0]["type"] = "function"
         self.tools[0]['function'] = get_directions
+        self.tools[0]['function'] = get_navigated
 
     '''DIRECTIONS'''
     def send_directions_goal(self, goal):
@@ -158,8 +175,12 @@ class Chatbot(Node):
         if result.tool_call != '':
             arguments = json.loads(result.tool_call)
             goal = arguments['goal']
+            name = result.function_name
 
-            self.send_directions_goal(goal)   
+            if 'directions' in name:
+                self.send_directions_goal(goal)   
+            else:
+                self.send_navigation_goal(goal)
 
     def tts_feedback_callback(self, feedback_msg):
         self.get_logger().info(f'TTS feedback received: {feedback_msg}')
@@ -203,10 +224,16 @@ class Chatbot(Node):
         self._get_result_future.add_done_callback(self.listen_result_callback)
 
     def listen_result_callback(self, future):
+        self.generate_response = False
+        self.send_tts_goal('hm let me think on that')
+        time.sleep(3)
+
         result = future.result().result
         self.transcript = result.transcript
         self.get_logger().info(f'Listen result received. Transcript: {result.transcript}')
         self._goal_in_progress = False
+        
+        self.generate_response = True
         self.send_tts_goal(self.transcript)
     
     def listen_feedback_callback(self, feedback_msg):
@@ -244,6 +271,49 @@ class Chatbot(Node):
     def recalibrate_feedback_callback(self, feedback_msg):
         self.get_logger().info(f'Recalibration feedback received: {feedback_msg}')
  
+    '''NAVIGATION'''
+    def send_navigation_goal(self, goal):
+        goal_msg = Navigation.Goal()
+        goal_msg.goal = goal
+        
+        self.get_logger().info("Waiting for Navigation action server...")
+        self._navigation_action_client.wait_for_server()
+        self.get_logger().info("Navigation action server found!")
+
+        self._goal_in_progress = True
+        self._send_goal_future = self._navigation_action_client.send_goal_async(goal_msg, feedback_callback=self.navigation_feedback_callback)
+        self._send_goal_future.add_done_callback(self.navigation_goal_response_callback)
+
+    def navigation_goal_response_callback(self, future):
+        goal_handle = future.result()
+
+        if not goal_handle.accepted:
+            self.get_logger().info('Navigation goal was rejected.')
+            self._goal_in_progress = False
+            return
+        
+        self.get_logger().info('Navigation goal accepted, waiting for result...')
+        self._get_result_future = goal_handle.get_result_async()
+        self._get_result_future.add_done_callback(self.navigation_result_callback)
+    
+    def navigation_result_callback(self, future):
+        result = future.result().result
+
+        self.current_node = self.goal_node
+        self.goal_node = ''
+
+        if result.success:
+            self.get_logger().info('Navigation result received.')
+            self._goal_in_progress = False
+            self.generate_response = True
+            self.send_tts_goal("ask if there is anything else you can help with")
+        else:
+            self._goal_in_progress = False
+            self.generate_response = True
+            self.send_tts_goal("apologize for failure and ask if there is anything else you can help with")
+    
+    def directions_feedback_callback(self, feedback_msg):
+            self.get_logger().info(f'TTS feedback received: {feedback_msg}')
 
 def main(args=None):
     rclpy.init(args=args)

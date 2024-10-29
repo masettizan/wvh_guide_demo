@@ -6,7 +6,6 @@ import rclpy
 
 import numpy as np
 from typing import List
-from openai import ChatCompletionMessageToolCall
 import json
 
 # arr = np.array([1.1, 1.2])
@@ -18,8 +17,22 @@ import json
 # List[Dict[str, str]]
 
 
-arr = ChatCompletionMessageToolCall(id='call_ZFZ5z2DsUrWpig2RX8cCZkO1', function=Function(arguments='{"goal":"bathroom"}', name='send_directions_goal'), type='function')
+# arr = ChatCompletionMessageToolCall(id='call_ZFZ5z2DsUrWpig2RX8cCZkO1', function=Function(arguments='{"goal":"bathroom"}', name='send_directions_goal'), type='function')
 
-tool_call = arr.choices[0].message.tool_calls[0]
-arguments = json.loads(tool_call['function']['arguments'])
-print(arguments)
+# tool_call = arr.choices[0].message.tool_calls[0]
+# arguments = json.loads(tool_call['function']['arguments'])
+# print(arguments)
+
+import json
+
+# Sample dictionary
+data = {
+    "name": "John",
+    "age": 30,
+    "city": "New York"
+}
+
+# Save the dictionary to a JSON file
+with open("/home/hello-robot/ament_ws/src/wvh_guide_demo/svg/WVH.json", "r") as f:
+    d = json.load(f)
+    print(d, type(d))

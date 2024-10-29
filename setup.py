@@ -27,7 +27,8 @@ setup(
     entry_points={
         'console_scripts': [
            'action_guide = wvh_guide_demo.action_guide:main',
-           'chatbot = wvh_guide_demo.chatbot:main'
+           'chatbot = wvh_guide_demo.chatbot:main',
+           'navigation = wvh_guide_demo.navigation:main',
         ],
     },
 )
