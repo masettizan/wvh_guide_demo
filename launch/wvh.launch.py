@@ -15,12 +15,11 @@ def generate_launch_description():    # a launcher for text to speech and its te
     '''Note: Must launch the TTS node alongside another node that uses it for it to function.'''
     stretch_navigation_dir = get_package_share_directory('stretch_nav2')
     stretch_navigation_launch_dir = os.path.join(stretch_navigation_dir, 'launch')
-    wvh_guide_dir = get_package_share_directory('wvh_guide_demo')
+    wvh_guide_dir = '/home/hello-robot/ament_ws/src/wvh_guide_demo'
     wvh_guide_map_dir = os.path.join(wvh_guide_dir, 'svg')
 
     tts = Node(
             package='parcs_tts',
-            namespace='wvh_guide_demo',
             executable='parcs_tts',
             name='parcs_tts',
             output='screen',
@@ -32,7 +31,6 @@ def generate_launch_description():    # a launcher for text to speech and its te
     
     stt = Node(
             package='parcs_stt',
-            namespace='wvh_guide_demo',
             executable='parcs_stt',
             name='parcs_stt',
             output='screen',
@@ -46,7 +44,6 @@ def generate_launch_description():    # a launcher for text to speech and its te
     
     directions = Node(
             package='wvh_guide_demo',
-            namespace='wvh_guide_demo',
             executable='action_guide',
             name='action_guide',
             output='screen'
@@ -54,15 +51,13 @@ def generate_launch_description():    # a launcher for text to speech and its te
     
     navigation = Node(
             package='wvh_guide_demo',
-            namespace='wvh',
             executable='navigation',
             name='navigation',
-            output='screen'
+            output='log'
         )
 
     chatbot = Node(
             package='wvh_guide_demo',
-            namespace='wvh_guide_demo',
             executable='chatbot',
             name='chatbot',
             output='screen',
@@ -71,20 +66,20 @@ def generate_launch_description():    # a launcher for text to speech and its te
     navigation_launch = IncludeLaunchDescription(
             PythonLaunchDescriptionSource(os.path.join(stretch_navigation_launch_dir, 'navigation.launch.py')),
             launch_arguments={
-                'map': os.path.join(wvh_guide_map_dir, 'wvh_first_floor.yaml'),
+                #TODO: change based on room
+                'map': os.path.join(wvh_guide_map_dir, 'exp', 'exp120.yaml'), #os.path.join(wvh_guide_map_dir, 'wvh_first_floor.yaml'),
                 'autostart': 'true',
-                'namespace': 'wvh',
-                'use_rviz': 'false',
-                'use_namespace': 'true',
-                'use_sim_time': 'true'
-            }
+                'use_rviz': 'true',
+                'use_sim_time': 'true',
+                'output': 'log'
+            }.items()
         )
         
     return LaunchDescription([
         tts,
         stt,
         directions,
-        #navigation,
+        navigation,
         chatbot,
-        # navigation_launch,        
+        navigation_launch,        
     ])

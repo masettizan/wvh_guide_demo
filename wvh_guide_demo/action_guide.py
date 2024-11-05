@@ -83,7 +83,7 @@ class Graph(Node):
         self.graph = {}
         self.elevators = ['f1_elevator', 'f2_elevator', 'f3_elevator', 'f4_elevator']
         
-        with open("/home/hello-robot/ament_ws/src/wvh_guide_demo/svg/WVH.json", "r") as f:
+        with open("/home/hello-robot/ament_ws/src/wvh_guide_demo/svg/exp/EXP.json", "r") as f: #with open("/home/hello-robot/ament_ws/src/wvh_guide_demo/svg/WVH.json", "r") as f:
             data = json.load(f)
         self.graph = data
 

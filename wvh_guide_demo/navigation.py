@@ -1,4 +1,5 @@
 #! /usr/bin/env python3
+import threading
 import rclpy
 import heapq
 import rclpy.executors
@@ -65,13 +66,16 @@ class Navigate(Node):
         self.robot_position = FrameListener()
         exe = rclpy.executors.MultiThreadedExecutor(num_threads=2)
         exe.add_node(self.robot_position)
-        exe.spin()
+        exe_thread = threading.Thread(target= exe.spin, daemon=True)
+        exe_thread.start()
 
         self.nav = BasicNavigator()
+        self.get_logger().info('\n\n\n\n\n GET POSE \n\n\n\n\n')
         self.current_pose = self._get_position(x=0.0, y=0.0) # x, y, theta
         self.start_node = 'f1_p8'
 
         self.nav.setInitialPose(self.current_pose) #TODO
+        self.get_logger().info('\n\n\n\n\n SET POSE \n\n\n\n\n')
         self.nav.waitUntilNav2Active()
 
         self._action_server = ActionServer(
@@ -94,7 +98,9 @@ class Navigate(Node):
         goal_location = self.convert_to_point(goal_name)
 
         self.nav.goToPose(goal_location)
+        self.get_logger().info('\n\n\n\n\n GO TO POSE \n\n\n\n\n')
         while not self.nav.isTaskComplete():
+            self.get_logger().info('\n\n\n\n\n IN PROG \n\n\n\n\n')
             curr_pos = self.robot_position.get_position()
 
             feedback_msg.current_x = curr_pos.translation.x
@@ -118,7 +124,7 @@ class Navigate(Node):
         self.graph = {}
         self.elevators = ['f1_elevator', 'f2_elevator', 'f3_elevator', 'f4_elevator']
         
-        with open("/home/hello-robot/ament_ws/src/wvh_guide_demo/svg/WVH.json", "r") as f:
+        with open("/home/hello-robot/ament_ws/src/wvh_guide_demo/svg/exp/EXP.json", "r") as f: #with open("/home/hello-robot/ament_ws/src/wvh_guide_demo/svg/WVH.json", "r") as f:
             data = json.load(f)
         self.graph = data
     

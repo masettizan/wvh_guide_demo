@@ -33,6 +33,7 @@ class Chatbot(Node):
         self._goal_in_progress = False
 
         self.define_callable_functs()
+        self.get_logger().info(f"PLEASE {self.tools}")
         self.generate_response = True
 
         self.current_node = 'f1_p1'
@@ -42,27 +43,18 @@ class Chatbot(Node):
         self.directions = ''
         self.transcript = ''
         
-        self.send_listen_goal()
-        # self.send_tts_goal('bring me to the bathroom')
+        # self.send_listen_goal()
+        self.send_tts_goal('give me directions to the exit')
         # self.send_directions_goal("bathroom")
 
     '''FUNCTION CALLING LLMS'''
     def define_callable_functs(self):
-        self.tools = []
         get_directions = {
             'name': 'send_directions_goal',
             'description': 'request directions from action server, using given starting position, orientation and a given goal location',
             'parameters': {
                 'type': 'object',
                 'properties': {
-                    # 'ori': {
-                    #     'type': 'float32[]',
-                    #     'description': 'The users starting orientation'
-                    # }
-                    # 'pos': {
-                    #     'type': 'string',
-                    #     'description': 'The users starting node position'
-                    # },
                     'goal': {
                         'type': 'string',
                         'description': 'The goal location for the user'
@@ -74,7 +66,7 @@ class Chatbot(Node):
 
         get_navigated = {
             'name': 'send_navigation_goal',
-            'description': 'request to be navigated/accompanied by the robot to a goal from the action server, using a goal name given',
+            'description': 'request to be brought to a goal from the action server, using a goal name given',
             'parameters': {
                 'type': 'object',
                 'properties': {
@@ -86,10 +78,18 @@ class Chatbot(Node):
                 'required': ['goal'],
             }
         }
-        self.tools.append({})
-        self.tools[0]["type"] = "function"
-        self.tools[0]['function'] = get_directions
-        self.tools[0]['function'] = get_navigated
+
+        self.tools = [
+            {
+                "type": "function",
+                "function": get_directions
+            },
+            {
+                "type": "function",
+                "function": get_navigated
+            }
+        ]
+
 
     '''DIRECTIONS'''
     def send_directions_goal(self, goal):
@@ -134,7 +134,7 @@ class Chatbot(Node):
         self.send_tts_goal(self.directions)
 
     def directions_feedback_callback(self, feedback_msg):
-            self.get_logger().info(f'TTS feedback received: {feedback_msg}')
+            self.get_logger().info(f'Directions feedback received: {feedback_msg}')
 
     '''TTS'''
     def send_tts_goal(self, msg):
@@ -312,8 +312,8 @@ class Chatbot(Node):
             self.generate_response = True
             self.send_tts_goal("apologize for failure and ask if there is anything else you can help with")
     
-    def directions_feedback_callback(self, feedback_msg):
-            self.get_logger().info(f'TTS feedback received: {feedback_msg}')
+    def navigation_feedback_callback(self, feedback_msg):
+            self.get_logger().info(f'Navigation feedback received: {feedback_msg}')
 
 def main(args=None):
     rclpy.init(args=args)
