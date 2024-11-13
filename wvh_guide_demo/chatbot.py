@@ -30,11 +30,10 @@ class Chatbot(Node):
             self.get_logger().info('Waiting for stop service to become available...')
         self.get_logger().info("Stop service established!")
 
-        self._goal_in_progress = False
+        self.flag = False
 
         self.define_callable_functs()
         self.get_logger().info(f"PLEASE {self.tools}")
-        self.generate_response = True
 
         self.current_node = 'f1_p1'
         self.current_ori = [-1.0, 0.0]
@@ -91,6 +90,19 @@ class Chatbot(Node):
             }
         ]
 
+    '''WAIT FOR FLAG'''
+    def get_flag(self):
+        total_time = 0.0
+        while(self.flag is True):
+            if total_time >= 5:
+                self.get_logger().error(
+                    f'Could not end process'
+                )
+                return 
+            total_time += 0.1
+            time.sleep(.1)
+        return self.flag
+
     '''DIRECTIONS'''
     def send_directions_goal(self, goal):
         goal_msg = Directions.Goal()
@@ -102,7 +114,9 @@ class Chatbot(Node):
         self._directions_action_client.wait_for_server()
         self.get_logger().info("Directions action server found!")
 
-        self._goal_in_progress = True
+        self.get_flag()
+        self.flag = True
+
         self._send_goal_future = self._directions_action_client.send_goal_async(goal_msg, feedback_callback=self.directions_feedback_callback)
         self._send_goal_future.add_done_callback(self.directions_goal_response_callback)
 
@@ -111,7 +125,7 @@ class Chatbot(Node):
 
         if not goal_handle.accepted:
             self.get_logger().info('Directions goal was rejected.')
-            self._goal_in_progress = False
+            self.flag = False
             return
         
         self.get_logger().info('Directions goal accepted, waiting for result...')
@@ -129,20 +143,20 @@ class Chatbot(Node):
         self.directions = result.directions
 
         self.get_logger().info('Directions result received.')
-        self._goal_in_progress = True
-        self.generate_response = False
-        self.send_tts_goal(self.directions)
-        self._goal_in_progress = True
+
+        self.flag = False
+
+        self.send_tts_goal(self.directions, False)
 
     def directions_feedback_callback(self, feedback_msg):
             self.get_logger().info(f'Directions feedback received: {feedback_msg}')
 
     '''TTS'''
-    def send_tts_goal(self, msg):
+    def send_tts_goal(self, msg, gen_response):
         goal_msg = TTS.Goal()
         goal_msg.tts = msg
         goal_msg.tools = json.dumps(self.tools)
-        goal_msg.generate_response = self.generate_response
+        goal_msg.generate_response = gen_response
 
         self.get_logger().info("Waiting for TTS action server...")
         if not self._tts_action_client.wait_for_server(timeout_sec=5.0):
@@ -151,7 +165,9 @@ class Chatbot(Node):
 
         self.get_logger().info("TTS action server found!")
 
-        self._goal_in_progress = True
+        self.get_flag()
+        self.flag = True
+
         self._send_goal_future = self._tts_action_client.send_goal_async(goal_msg, feedback_callback=self.tts_feedback_callback)
         self._send_goal_future.add_done_callback(self.tts_goal_response_callback)
 
@@ -160,7 +176,7 @@ class Chatbot(Node):
 
         if not goal_handle.accepted:
             self.get_logger().info('TTS goal was rejected.')
-            self._goal_in_progress = True
+            self.flag = False
             return
         
         self.get_logger().info('TTS goal accepted, waiting for result...')
@@ -170,6 +186,8 @@ class Chatbot(Node):
     def tts_result_callback(self, future):
         result = future.result().result
         self.get_logger().info(f'TTS result received. Said: {result.msg}')
+
+        self.flag = False
 
         #function calling
         if result.tool_call != '':
@@ -181,7 +199,6 @@ class Chatbot(Node):
                 self.send_directions_goal(goal) 
             elif 'navigation' in name:
                 self.send_navigation_goal(goal)  
-            self._goal_in_progress = False
 
     def tts_feedback_callback(self, feedback_msg):
         self.get_logger().info(f'TTS feedback received: {feedback_msg}')
@@ -208,7 +225,9 @@ class Chatbot(Node):
         self._listen_action_client.wait_for_server()
         self.get_logger().info("Listen action server found!")
 
-        self._goal_in_progress = True
+        self.get_flag()
+        self.flag = True
+
         self._send_goal_future = self._listen_action_client.send_goal_async(goal_msg, feedback_callback=self.listen_feedback_callback)
         self._send_goal_future.add_done_callback(self.listen_goal_response_callback)
 
@@ -217,7 +236,7 @@ class Chatbot(Node):
 
         if not goal_handle.accepted:
             self.get_logger().info('Listen goal was rejected.')
-            self._goal_in_progress = False
+            self.flag = False
             return
         
         self.get_logger().info('Listen goal accepted, waiting for result...')
@@ -225,17 +244,16 @@ class Chatbot(Node):
         self._get_result_future.add_done_callback(self.listen_result_callback)
 
     def listen_result_callback(self, future):
-        self.generate_response = False
-        self.send_tts_goal('hm let me think on that')
+        self.flag = False
+
+        self.send_tts_goal('hm let me think on that', False)
         time.sleep(3)
 
         result = future.result().result
         self.transcript = result.transcript
         self.get_logger().info(f'Listen result received. Transcript: {result.transcript}')
-        self._goal_in_progress = True
         
-        self.generate_response = True
-        self.send_tts_goal(self.transcript)
+        self.send_tts_goal(self.transcript, True)
     
     def listen_feedback_callback(self, feedback_msg):
         self.get_logger().info(f'Listen feedback received: {feedback_msg}')
@@ -281,7 +299,9 @@ class Chatbot(Node):
         self._navigation_action_client.wait_for_server()
         self.get_logger().info("Navigation action server found!")
 
-        self._goal_in_progress = True
+        self.get_flag()
+        self.flag = True
+
         self._send_goal_future = self._navigation_action_client.send_goal_async(goal_msg, feedback_callback=self.navigation_feedback_callback)
         self._send_goal_future.add_done_callback(self.navigation_goal_response_callback)
 
@@ -290,7 +310,7 @@ class Chatbot(Node):
 
         if not goal_handle.accepted:
             self.get_logger().info('Navigation goal was rejected.')
-            self._goal_in_progress = False
+            self.flag = False
             return
         
         self.get_logger().info('Navigation goal accepted, waiting for result...')
@@ -303,35 +323,31 @@ class Chatbot(Node):
         self.current_node = self.goal_node
         self.goal_node = ''
 
+        self.flag = False
+
         if result.success:
             self.get_logger().info('Navigation result received.')
             
-            self.generate_response = True
-            self.send_tts_goal("ask if there is anything else you can help with")
-            # self._goal_in_progress = False
+            self.send_tts_goal("ask if there is anything else you can help with", True)
         else:
-            self.generate_response = True
-            self.send_tts_goal("apologize for failure and ask if there is anything else you can help with")
-            # self._goal_in_progress = False
+            self.send_tts_goal("apologize for failure and ask if there is anything else you can help with", True)
     
     def navigation_feedback_callback(self, feedback_msg):
             self.get_logger().info(f'Navigation feedback received: {feedback_msg}')
 
     '''INTERACTION'''
     def interaction(self):
-        self.generate_response = False
         repeat = True
-        self.send_tts_goal('how can I help you today')
+        self.send_tts_goal('how can I help you today', False)
 
 
         while repeat:
-            self.send_listen_goal()
-            self.generate_response = False
-            while self._goal_in_progress:
-                continue
-                # self.get_logger().info("witing")
-            self.get_logger().info("out of while loop")
-            self.send_tts_goal('is there anything else i can help with')
+            # self.send_listen_goal()
+            self.send_tts_goal('give me directions to the exit', True)
+
+            self.get_flag()
+            
+            self.send_tts_goal('is there anything else i can help with', False)
             self.transcript = ''
         
         #move from this function to inside code???

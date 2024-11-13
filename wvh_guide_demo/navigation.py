@@ -71,7 +71,9 @@ class Navigate(Node):
 
         self.nav = BasicNavigator()
         self.get_logger().info('\n\n\n\n\n GET POSE \n\n\n\n\n')
-        self.current_pose = self._get_position(x=0.0, y=0.0) # x, y, theta
+        #-19.754 -7.256 -2.917
+
+        self.current_pose = self._get_position(x=-19.754, y=-7.26)# self._get_position(x=0.0, y=0.0) # x, y, theta
         self.start_node = 'f1_p8'
         #TODO FIX THIS SHIT% NOPT WORKING
         # curr_pose = self.robot_position.get_position()
