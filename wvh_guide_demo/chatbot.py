@@ -39,10 +39,6 @@ class Chatbot(Node):
         self._stt_action_client.wait_for_server()
         self.get_logger().info('stt server found')  
 
-
-        self.flag = False
-        
-
         self.tools = self.define_callable_functs()
 
         self.current_node = 'f1_p1'
@@ -151,19 +147,6 @@ class Chatbot(Node):
         response_msg = response.choices[0].message
         return self.organize_llm_response(response_msg)
 
-    '''WAIT FOR FLAG'''
-    def get_flag(self):
-        total_time = 0.0
-        while(self.flag is True):
-            if total_time >= 5:
-                self.get_logger().error(
-                    f'Could not end process'
-                )
-                return 
-            total_time += 0.1
-            time.sleep(.1)
-        return self.flag
-
     '''DIRECTIONS'''
     def send_directions_goal(self, goal):
         goal_msg = Directions.Goal()
@@ -171,39 +154,24 @@ class Chatbot(Node):
         goal_msg.position = self.current_node
         goal_msg.goal = goal
 
-        self.get_flag()
-        self.flag = True
-
-        self._send_goal_future = self._directions_action_client.send_goal_async(goal_msg, feedback_callback=self.directions_feedback_callback)
-        self._send_goal_future.add_done_callback(self.directions_goal_response_callback)
-
-    def directions_goal_response_callback(self, future):
-        goal_handle = future.result()
-
-        if not goal_handle.accepted:
-            self.get_logger().info('Directions goal was rejected.')
-            self.flag = False
-            return
+        future = self._directions_action_client.send_goal_async(goal_msg, feedback_callback=self.directions_feedback_callback)
         
-        self.get_logger().info('Directions goal accepted, waiting for result...')
-        self._get_result_future = goal_handle.get_result_async()
-        self._get_result_future.add_done_callback(self.directions_result_callback)
+        #wait for it to be done
+        rclpy.spin_until_future_complete(self, future)
+        goal_future = future.result().get_result_async()
 
-    def directions_result_callback(self, future):
-        result = future.result().result
-
+        #blocking call
+        while not goal_future.done():
+            rclpy.spin_until_future_complete(self, goal_future, timeout_sec=0.5)
+        
+        result = goal_future.result().result
         self.current_node = self.goal_node
         self.goal_node = ''
 
         self.current_ori = result.orientation
         self.current_pos = result.position
-        self.directions = result.directions
-
-        self.get_logger().info('Directions result received.')
-
-        self.flag = False
-
-        self.send_tts_goal(self.directions)
+        
+        return result.directions
 
     def directions_feedback_callback(self, feedback_msg):
             self.get_logger().info(f'Directions feedback received: {feedback_msg}')
@@ -213,31 +181,18 @@ class Chatbot(Node):
         goal_msg = TTS.Goal()
         goal_msg.tts = msg
 
-        self.get_logger().info("TTS action server found!")
+        future = self._tts_action_client.send_goal_async(goal_msg, feedback_callback=self.tts_feedback_callback)
+        # wait for the send_goal future to be done
+        rclpy.spin_until_future_complete(self, future)
+        # now we setup the loop for the results
+        goal_future = future.result().get_result_async()
 
-        self.get_flag()
-        self.flag = True
-
-        self._send_goal_future = self._tts_action_client.send_goal_async(goal_msg, feedback_callback=self.tts_feedback_callback)
-        self._send_goal_future.add_done_callback(self.tts_goal_response_callback)
-
-    def tts_goal_response_callback(self, future):
-        goal_handle = future.result()
-
-        if not goal_handle.accepted:
-            self.get_logger().info('TTS goal was rejected.')
-            self.flag = False
-            return
+        #blocking call
+        while not goal_future.done():
+            rclpy.spin_until_future_complete(self, goal_future, timeout_sec=0.5)
         
-        self.get_logger().info('TTS goal accepted, waiting for result...')
-        self._get_result_future = goal_handle.get_result_async()
-        self._get_result_future.add_done_callback(self.tts_result_callback)
-
-    def tts_result_callback(self, future):
-        result = future.result().result
+        result = goal_future.result().result
         self.get_logger().info(f'TTS result received. Said: {result.msg}')
-
-        self.flag = False
 
     def tts_feedback_callback(self, feedback_msg):
         self.get_logger().info(f'TTS feedback received: {feedback_msg}')
@@ -260,36 +215,20 @@ class Chatbot(Node):
     def send_listen_goal(self):
         goal_msg = Listen.Goal()
 
-
-        self.get_flag()
-        self.flag = True
-
-        self._send_goal_future = self._stt_action_client.send_goal_async(goal_msg, feedback_callback=self.listen_feedback_callback)
-        self._send_goal_future.add_done_callback(self.listen_goal_response_callback)
-
-    def listen_goal_response_callback(self, future):
-        goal_handle = future.result()
-
-        if not goal_handle.accepted:
-            self.get_logger().info('Listen goal was rejected.')
-            self.flag = False
-            return
+        future = self._stt_action_client.send_goal_async(goal_msg, feedback_callback=self.listen_feedback_callback)
         
-        self.get_logger().info('Listen goal accepted, waiting for result...')
-        self._get_result_future = goal_handle.get_result_async()
-        self._get_result_future.add_done_callback(self.listen_result_callback)
+        #wait for it to be done
+        rclpy.spin_until_future_complete(self, future)
+        goal_future = future.result().get_result_async()
 
-    def listen_result_callback(self, future):
-        self.flag = False
-
-        self.send_tts_goal('hm let me think on that')
-        time.sleep(3)
-
-        result = future.result().result
-        self.transcript = result.transcript
+        #blocking call
+        while not goal_future.done():
+            rclpy.spin_until_future_complete(self, goal_future, timeout_sec=0.5)
+        
+        result = goal_future.result().result
         self.get_logger().info(f'Listen result received. Transcript: {result.transcript}')
-        
-        self.send_tts_goal(self.transcript)
+
+        return result.transcript
     
     def listen_feedback_callback(self, feedback_msg):
         self.get_logger().info(f'Listen feedback received: {feedback_msg}')
@@ -331,40 +270,22 @@ class Chatbot(Node):
         goal_msg = Navigation.Goal()
         goal_msg.goal = goal
         
-
-        self.get_flag()
-        self.flag = True
-
-        self._send_goal_future = self._navigation_action_client.send_goal_async(goal_msg, feedback_callback=self.navigation_feedback_callback)
-        self._send_goal_future.add_done_callback(self.navigation_goal_response_callback)
-
-    def navigation_goal_response_callback(self, future):
-        goal_handle = future.result()
-
-        if not goal_handle.accepted:
-            self.get_logger().info('Navigation goal was rejected.')
-            self.flag = False
-            return
+        future = self._navigation_action_client.send_goal_async(goal_msg, feedback_callback=self.navigation_feedback_callback)
         
-        self.get_logger().info('Navigation goal accepted, waiting for result...')
-        self._get_result_future = goal_handle.get_result_async()
-        self._get_result_future.add_done_callback(self.navigation_result_callback)
-    
-    def navigation_result_callback(self, future):
-        result = future.result().result
-
+        #wait for it to be done
+        rclpy.spin_until_future_complete(self, future)
+        goal_future = future.result().get_result_async()
+        
+        #blocking call
+        while not goal_future.done():
+            rclpy.spin_until_future_complete(self, goal_future, timeout_sec=0.5)
+        
+        result = goal_future.result().result
         self.current_node = self.goal_node
         self.goal_node = ''
 
-        self.flag = False
+        return result.success
 
-        if result.success:
-            self.get_logger().info('Navigation result received.')
-            
-            self.send_tts_goal("ask if there is anything else you can help with")
-        else:
-            self.send_tts_goal("apologize for failure and ask if there is anything else you can help with")
-    
     def navigation_feedback_callback(self, feedback_msg):
             self.get_logger().info(f'Navigation feedback received: {feedback_msg}')
 
