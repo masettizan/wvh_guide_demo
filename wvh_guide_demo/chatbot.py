@@ -1,5 +1,8 @@
 #! /usr/bin/env python3
 
+import threading
+
+import openai
 import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionClient
@@ -31,9 +34,9 @@ class Chatbot(Node):
         self.get_logger().info("Stop service established!")
 
         self.flag = False
+        
 
-        self.define_callable_functs()
-        self.get_logger().info(f"PLEASE {self.tools}")
+        self.tools = self.define_callable_functs()
 
         self.current_node = 'f1_p1'
         self.current_ori = [-1.0, 0.0]
@@ -41,17 +44,13 @@ class Chatbot(Node):
         self.goal_node = ''
         self.directions = ''
         self.transcript = ''
-        
-        # self.send_listen_goal()
-        self.interaction()
-        # self.send_tts_goal('give me directions to the exit')
-        # self.send_directions_goal("bathroom")
 
     '''FUNCTION CALLING LLMS'''
+    # Define functions with updated parameters and strict mode
     def define_callable_functs(self):
         get_directions = {
             'name': 'send_directions_goal',
-            'description': 'request directions from action server, using given starting position, orientation and a given goal location',
+            'description': 'Request to get directions to a goal from the directions action server, using given starting position, orientation, and a given goal location.',
             'parameters': {
                 'type': 'object',
                 'properties': {
@@ -61,12 +60,14 @@ class Chatbot(Node):
                     }
                 },
                 'required': ['goal'],
-            }
+                'additionalProperties': False
+            },
+            'strict': False
         }
 
         get_navigated = {
             'name': 'send_navigation_goal',
-            'description': 'request to be brought to a goal from the action server, using a goal name given',
+            'description': 'Request to be brought and driven to a goal from the navigation action server, using a goal name given in the building West Village H.',
             'parameters': {
                 'type': 'object',
                 'properties': {
@@ -76,10 +77,12 @@ class Chatbot(Node):
                     }
                 },
                 'required': ['goal'],
-            }
+                'additionalProperties': False
+            },
+            'strict': False
         }
 
-        self.tools = [
+        tools = [
             {
                 "type": "function",
                 "function": get_directions
@@ -89,6 +92,32 @@ class Chatbot(Node):
                 "function": get_navigated
             }
         ]
+
+        return tools
+
+    # Define the personality prompt according to the new requirements
+    def llm_parse_response(self, user_input):
+        personality = '''
+        You are a friendly and helpful robot assistant designed to understand user intent and respond appropriately.
+        For each user message, return a tuple with three elements: repeat, intent, and next_speech.
+
+        - repeat: A boolean value indicating whether to continue the conversation ({repeat} for yes, {not repeat} for no).
+        - intent: A string value identifying the main intent of the user's message, such as "{intent}".
+        - next_speech: A response string that addresses the user's message directly.
+        '''
+
+        response = openai.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": personality},
+                {"role": "user", "content": user_input},
+            ],
+            tools=self.tools,
+            tool_choice="auto"
+        )
+        
+        response_msg = response.choices[0].message
+        print(response_msg)
 
     '''WAIT FOR FLAG'''
     def get_flag(self):
@@ -367,12 +396,16 @@ def main(args=None):
 
     node = Chatbot()
 
-    try: 
-        rclpy.spin(node)
-    
-    finally:
-        node.destroy_node()
-        rclpy.shutdown()
+    executor = rclpy.executors.MultiThreadedExecutor(num_threads=10)
+    executor.add_node(node)
+
+    executor_thread = threading.Thread(target=executor.spin, daemon=True)
+    executor_thread.start()
+
+    node.interaction()
+
+    node.destroy_node()
+    rclpy.shutdown()
 
 if __name__ == '__main__':
     main()

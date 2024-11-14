@@ -1,0 +1,39 @@
+remove interaction function
+add executor to main with 10 threads
+add node.interaction (write a new one)
+
+convert into blocking call
+
+if there is people:
+    ask question - tts
+    while repeat:
+        response = listen
+        given resaponse decide if you have enough info
+        parse response and decide
+        repeat, intent, next = parse response - llm
+        tts(next)
+
+        if intent = 'navigation':
+        elif intent = 'directions':
+
+used synchronization primitives -- locks
+
+'''INTERACTION'''
+def interaction(self):
+
+    if there is people:
+
+        repeat = True
+        self.send_tts_goal('how can I help you today', False)
+        while repeat:
+            # dialogue
+            response = self.listen()
+            # given the response, parse the response
+            repeat, intent, next_speech = llm_parse_response(response)
+            # next sentence
+            self.send_tts_goal(next_speech)
+
+        if intent == 'navigation':
+            self.send_navigation_goal() ....
+        elif intent == "speech":
+            self.give_directions() ....
