@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 
+import json
 import openai
 
 # Define functions with updated parameters and strict mode
@@ -74,9 +75,40 @@ def llm_parse_response(tools, user_input):
     )
     
     response_msg = response.choices[0].message
+
     print(response_msg)
 
+def organize_llm_response(response):
+    if response.content is not None:
+        try:
+            repeat, intent, next_speech = ast.literal_eval(response.content)
+        except SyntaxError:
+            repeat = True
+            intent = 'Request'
+            next_speech = response.content
+    # a function may be getting called
+    else:
+        repeat = True
+        intent = 'function'
+        next_speech = ''
+
+    if response.tool_calls is not None:
+        funct = response.tool_calls[0] #its a list
+
+        funct_call = json.loads(funct.function.arguments)
+        next_speech = json.dumps(funct_call)
+
+        intent = funct.function.name
+    
+    return repeat, intent, next_speech
+
+import ast
 # Initialize tools and test with a user input
 tools = define_callable_functs()
-llm_parse_response(tools, 'can you navigate me')
-
+# llm_parse_response(tools, 'can you navigate me')
+string1 = '(True, "NavigationRequest", "Sure, I can help you with that. Could you please tell me where you would like to go?")\n'
+str2 = 'hi how are you, i am'
+try:
+    hi , hello , bwa= ast.literal_eval(string1)
+except SyntaxError:
+    print(str2)

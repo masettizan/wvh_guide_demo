@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 
+import ast
 import threading
 
 import openai
@@ -94,7 +95,32 @@ class Chatbot(Node):
         ]
 
         return tools
+    
+    # Interpret and organize llm result
+    def organize_llm_response(self, response):
+        if response.content is not None:
+            try:
+                repeat, intent, next_speech = ast.literal_eval(response.content)
+            except SyntaxError:
+                repeat = True
+                intent = 'Request'
+                next_speech = response.content
+        # a function may be getting called
+        else:
+            repeat = True
+            intent = 'function'
+            next_speech = ''
 
+        if response.tool_calls is not None:
+            funct = response.tool_calls[0] #its a list
+
+            funct_call = json.loads(funct.function.arguments)
+            next_speech = json.dumps(funct_call)
+
+            intent = funct.function.name
+    
+        return repeat, intent, next_speech
+    
     # Define the personality prompt according to the new requirements
     def llm_parse_response(self, user_input):
         personality = '''
@@ -117,7 +143,7 @@ class Chatbot(Node):
         )
         
         response_msg = response.choices[0].message
-        print(response_msg)
+        return self.organize_llm_response(response_msg)
 
     '''WAIT FOR FLAG'''
     def get_flag(self):
