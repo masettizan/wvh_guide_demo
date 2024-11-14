@@ -15,8 +15,16 @@ def generate_launch_description():    # a launcher for text to speech and its te
     '''Note: Must launch the TTS node alongside another node that uses it for it to function.'''
     stretch_navigation_dir = get_package_share_directory('stretch_nav2')
     stretch_navigation_launch_dir = os.path.join(stretch_navigation_dir, 'launch')
+    stretch_core_path = get_package_share_directory('stretch_core')
     wvh_guide_dir = '/home/hello-robot/ament_ws/src/wvh_guide_demo'
     wvh_guide_map_dir = os.path.join(wvh_guide_dir, 'svg')
+
+    # launch camera
+    d435i_launch = IncludeLaunchDescription(
+          PythonLaunchDescriptionSource([os.path.join(
+               stretch_core_path, 'launch'),
+               '/stretch_realsense.launch.py'])
+          )
 
     tts = Node(
             package='parcs_tts',
@@ -76,6 +84,7 @@ def generate_launch_description():    # a launcher for text to speech and its te
         )
         
     return LaunchDescription([
+        d435i_launch,
         tts,
         stt,
         directions,

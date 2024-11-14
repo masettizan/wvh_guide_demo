@@ -142,6 +142,7 @@ class Chatbot(Node):
             ],
             tools=self.tools,
             tool_choice="auto"
+            temperature=0.0
         )
         
         response_msg = response.choices[0].message
@@ -223,6 +224,7 @@ class Chatbot(Node):
 
         #blocking call
         while not goal_future.done():
+            self.get_logger().info("waiting")
             rclpy.spin_until_future_complete(self, goal_future, timeout_sec=0.5)
         
         result = goal_future.result().result
@@ -297,7 +299,8 @@ class Chatbot(Node):
 
         while repeat:
             #dialoge
-            response = self.send_listen_goal()
+            # response = self.send_listen_goal()
+            response = 'give me directions to the exit'
             #given response, parse it
             repeat, intent, next_speech = self.llm_parse_response(response)
             
