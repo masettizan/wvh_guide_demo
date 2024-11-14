@@ -102,6 +102,17 @@ def organize_llm_response(response):
     
     return repeat, intent, next_speech
 
+    '''        #function calling
+        if result.tool_call != '':
+            arguments = json.loads(result.tool_call)
+            goal = arguments['goal']
+            name = result.function_name
+
+            if 'directions' in name:
+                self.send_directions_goal(goal) 
+            elif 'navigation' in name:
+                self.send_navigation_goal(goal)  
+'''
 import ast
 # Initialize tools and test with a user input
 tools = define_callable_functs()

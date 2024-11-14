@@ -296,24 +296,19 @@ class Chatbot(Node):
 
 
         while repeat:
-            # self.send_listen_goal()
-            self.send_tts_goal('give me directions to the exit')
-
-            self.get_flag()
+            #dialoge
+            response = self.send_listen_goal()
+            #given response, parse it
+            repeat, intent, next_speech = self.llm_parse_response(response)
             
-            self.send_tts_goal('is there anything else i can help with')
-            self.transcript = ''
-        
-        #move from this function to inside code???
-        #TTS - how can i help
-        #STT
-        #TTS - with function calling
-        #TTS - is there anything else i can help with
-        #STT
-        #TTS - with function calling
-        #TTS - is there anything else i can help with
-        #...
-        return
+            if intent == 'navigation':
+                arg = json.loads(next_speech)
+                self.send_navigation_goal(arg['goal'])
+            elif intent == 'directions':
+                arg = json.loads(next_speech)
+                self.send_directions_goal(arg['goal'])
+            else:
+                self.send_tts_goal(next_speech)
 
 
 def main(args=None):
