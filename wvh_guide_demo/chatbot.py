@@ -210,8 +210,6 @@ class Chatbot(Node):
     def send_tts_goal(self, msg, gen_response):
         goal_msg = TTS.Goal()
         goal_msg.tts = msg
-        goal_msg.tools = json.dumps(self.tools)
-        goal_msg.generate_response = gen_response
 
         self.get_logger().info("Waiting for TTS action server...")
         if not self._tts_action_client.wait_for_server(timeout_sec=5.0):
@@ -243,17 +241,6 @@ class Chatbot(Node):
         self.get_logger().info(f'TTS result received. Said: {result.msg}')
 
         self.flag = False
-
-        #function calling
-        if result.tool_call != '':
-            arguments = json.loads(result.tool_call)
-            goal = arguments['goal']
-            name = result.function_name
-
-            if 'directions' in name:
-                self.send_directions_goal(goal) 
-            elif 'navigation' in name:
-                self.send_navigation_goal(goal)  
 
     def tts_feedback_callback(self, feedback_msg):
         self.get_logger().info(f'TTS feedback received: {feedback_msg}')
