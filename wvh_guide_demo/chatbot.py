@@ -299,19 +299,28 @@ class Chatbot(Node):
 
         while repeat:
             #dialoge
-            # response = self.send_listen_goal()
-            response = 'give me directions to the exit'
+            response = self.send_listen_goal()
             #given response, parse it
             repeat, intent, next_speech = self.llm_parse_response(response)
             
             if intent == 'navigation':
                 arg = json.loads(next_speech)
-                self.send_navigation_goal(arg['goal'])
+                success = self.send_navigation_goal(arg['goal'])
+
+                if success:
+                    self.send_tts_goal('We have arrived!')
+                else:
+                    self.send_tts_goal("It seems we're having trouble navigating to your goal.")
+
             elif intent == 'directions':
                 arg = json.loads(next_speech)
-                self.send_directions_goal(arg['goal'])
+                transcript = self.send_directions_goal(arg['goal'])
+                self.send_tts_goal(transcript)
             else:
                 self.send_tts_goal(next_speech)
+
+            self.send_tts_goal('Is there anything else I can help you with?')
+
 
 
 def main(args=None):
