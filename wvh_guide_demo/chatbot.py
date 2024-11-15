@@ -322,8 +322,6 @@ class Chatbot(Node):
 
             self.send_tts_goal('Is there anything else I can help you with?')
 
-
-
 def main(args=None):
     rclpy.init(args=args)
 
