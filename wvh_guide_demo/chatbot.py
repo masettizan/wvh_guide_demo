@@ -20,7 +20,7 @@ class Chatbot(Node):
 
     def __init__(self):
         super().__init__('chatbot')
-
+        # Define Action Client/Server Connection
         self._directions_action_client = ActionClient(self, Directions, 'directions')
         self._directions_action_client.wait_for_server()
         self._navigation_action_client = ActionClient(self, Navigation, 'navigation')
@@ -39,7 +39,9 @@ class Chatbot(Node):
         self._stt_action_client.wait_for_server()
         self.get_logger().info('stt server found')  
 
+        # define functions for llm
         self.tools = self.define_callable_functs()
+        self.chatbot_history = []
 
         self.current_node = 'f1_p1'
         self.current_ori = [-1.0, 0.0]
@@ -97,56 +99,51 @@ class Chatbot(Node):
         ]
 
         return tools
-    
+
+   
     # Interpret and organize llm result
     def organize_llm_response(self, response):
         if response.content is not None:
             try:
-                repeat, intent, next_speech = ast.literal_eval(response.content)
+                repeat, next_speech = ast.literal_eval(response.content)
             except SyntaxError:
                 repeat = True
-                intent = 'Request'
                 next_speech = response.content
         # a function may be getting called
         else:
             repeat = True
-            intent = 'function'
             next_speech = ''
 
         if response.tool_calls is not None:
-            funct = response.tool_calls[0] #its a list
+            next_speech = response.tool_calls[0] #its a list
 
-            funct_call = json.loads(funct.function.arguments)
-            next_speech = json.dumps(funct_call)
-
-            intent = funct.function.name
-    
-        return repeat, intent, next_speech
+        return repeat, next_speech 
     
     # Define the personality prompt according to the new requirements
     def llm_parse_response(self, user_input):
         personality = '''
         You are a friendly and helpful robot assistant designed to understand user intent and respond appropriately.
-        For each user message, return a tuple with three elements: repeat, intent, and next_speech.
+        For each user message, return a tuple with two elements: repeat, and next_speech.
 
-        - repeat: A boolean value indicating whether to continue the conversation ({repeat} for yes, {not repeat} for no).
-        - intent: A string value identifying the main intent of the user's message, such as "{intent}".
+        - repeat: A boolean value indicating whether to continue the conversation (True for yes, False for no).
         - next_speech: A response string that addresses the user's message directly.
+
+        You can both give instructions and guide users.
         '''
+        
+        self.chatbot_history.append({"role": "user", "content": user_input})
 
         response = openai.chat.completions.create(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": personality},
-                {"role": "user", "content": user_input},
-            ],
+            model="gpt-4o-mini",
+            messages=[{"role": "system", "content": personality}] + self.chatbot_history,
             tools=self.tools,
-            tool_choice="auto"
-            temperature=0.0
         )
         
         response_msg = response.choices[0].message
-        return self.organize_llm_response(response_msg)
+        result = self.organize_llm_response(response_msg)
+        self.chatbot_history.append({"role": "assistant", "content": result})
+
+        return result
 
     '''DIRECTIONS'''
     def send_directions_goal(self, goal):
@@ -294,30 +291,34 @@ class Chatbot(Node):
     '''INTERACTION'''
     def interaction(self):
         repeat = True
-        self.send_tts_goal('how can I help you today')
+        self.send_tts_goal('how can I help you today?')
 
 
         while repeat:
             #dialoge
             response = self.send_listen_goal()
             #given response, parse it
-            repeat, intent, next_speech = self.llm_parse_response(response)
+            repeat, next_speech = self.llm_parse_response(response)
             
-            if intent == 'navigation':
-                arg = json.loads(next_speech)
-                success = self.send_navigation_goal(arg['goal'])
-
-                if success:
-                    self.send_tts_goal('We have arrived!')
-                else:
-                    self.send_tts_goal("It seems we're having trouble navigating to your goal.")
-
-            elif intent == 'directions':
-                arg = json.loads(next_speech)
-                transcript = self.send_directions_goal(arg['goal'])
-                self.send_tts_goal(transcript)
-            else:
+            if isinstance(next_speech, str):
                 self.send_tts_goal(next_speech)
+            else:
+                args = json.loads(next_speech)
+                goal = args['goal']
+                function = args['name']
+
+                if function == 'send_navigation_goal':
+                    self.send_tts_goal(f'Sure, I can help you get to the {goal}')
+                    success = self.send_navigation_goal(args['goal'])
+
+                    if success:
+                        self.send_tts_goal('We have arrived!')
+                    else:
+                        self.send_tts_goal("It seems we're having trouble navigating to your goal.")
+                elif function == 'send_directions_goal':
+                    self.send_tts_goal(f'Sure, I can give directions to the {goal}')
+                    transcript = self.send_directions_goal(args['goal'])
+                    self.send_tts_goal(transcript)
 
             self.send_tts_goal('Is there anything else I can help you with?')
 
