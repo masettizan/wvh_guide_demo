@@ -104,11 +104,11 @@ class Navigate(Node):
         result = Navigation.Result()
 
         goal_location = self.convert_to_point(goal_name)
-
+        self.get_logger().info(f'Navigating to {goal_name} at {goal_location}')
         self.nav.goToPose(goal_location)
-        self.get_logger().info('\n\n\n\n\n GO TO POSE \n\n\n\n\n')
+        # self.get_logger().info('\n\n\n\n\n GO TO POSE \n\n\n\n\n')
         while not self.nav.isTaskComplete():
-            self.get_logger().info('\n\n\n\n\n IN PROG \n\n\n\n\n')
+            # self.get_logger().info('\n\n\n\n\n IN PROG \n\n\n\n\n')
             curr_pos = self.robot_position.get_position()
 
             feedback_msg.current_x = curr_pos.translation.x
@@ -151,7 +151,7 @@ class Navigate(Node):
 
         idx = weights.index(min(weights))
         key_goal = options[idx]
-        goal_pose = self._get_position(x=self.graph[key_goal]['x'], y=self.graph[key_goal]['y'])
+        goal_pose = self._get_position(x=self.graph[key_goal]['real_x'], y=self.graph[key_goal]['real_y'])
         
         return goal_pose
 

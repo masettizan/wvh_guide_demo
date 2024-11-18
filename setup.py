@@ -29,6 +29,7 @@ setup(
            'action_guide = wvh_guide_demo.action_guide:main',
            'chatbot = wvh_guide_demo.chatbot:main',
            'navigation = wvh_guide_demo.navigation:main',
+           'zhi = wvh_guide_demo.zhi:main'
         ],
     },
 )

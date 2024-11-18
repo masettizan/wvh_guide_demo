@@ -45,7 +45,7 @@ def generate_launch_description():    # a launcher for text to speech and its te
             parameters=[{"relative_threshold": 0.5}, # relative threshold depending on calibration value, -0.5 works well for quiet areas
                         {"set_threshold": 0.0}, # set the threshold directly without calibration; 0.0 means it will use calibration
                         {"interpreter": 'openai'}, # can be “anthropic” or “openai”
-                        {"pause_duration": 1.5}, # the amount of time of a pause in seconds to begin processing audio; the audio chunk length
+                        {"pause_duration": 0.5}, # the amount of time of a pause in seconds to begin processing audio; the audio chunk length
                         {"microphone": 'default'} # the name of the microphone that you want to be used for detection
                         ] 
         )
@@ -70,25 +70,33 @@ def generate_launch_description():    # a launcher for text to speech and its te
             name='chatbot',
             output='screen',
         )
-
+    
     navigation_launch = IncludeLaunchDescription(
             PythonLaunchDescriptionSource(os.path.join(stretch_navigation_launch_dir, 'navigation.launch.py')),
             launch_arguments={
                 #TODO: change based on room
                 'map': os.path.join(wvh_guide_map_dir, 'wvh_first_floor.yaml'), #os.path.join(wvh_guide_map_dir, 'exp', 'exp120.yaml'), #
                 'autostart': 'true',
-                'use_rviz': 'true',
-                'use_sim_time': 'true',
+                'use_rviz': 'false',
+                'use_sim_time': 'false',
                 'output': 'log'
             }.items()
         )
+
+    face_detection = Node(
+        package="stretch_deep_perception",
+        executable="detect_faces",
+        name="face_detection",
+        output='screen'
+    )
+    
         
     return LaunchDescription([
-        # d435i_launch,
-        # tts,
-        # stt,
-        # directions,
-        # navigation,
-        chatbot,
-        # navigation_launch,        
+        d435i_launch,
+        tts,
+        stt,
+        directions,
+        navigation,
+        navigation_launch,   
+        face_detection     
     ])
