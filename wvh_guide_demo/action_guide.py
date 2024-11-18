@@ -12,6 +12,7 @@ from wvh_guide_demo_msgs.action import Directions
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
 from rclpy.executors import MultiThreadedExecutor
 import json
+import math
 
 class Graph(Node):
     CONVERSION = 3/17
@@ -216,7 +217,7 @@ class Graph(Node):
         current = current + delta 
 
         move = np.sqrt(delta[0]**2 + delta[1]**2)
-        direction = float(round(move, 2))
+        direction = math.ceil(float(round(move, 2)))
         return current, direction
 
     def get_directions(self, heading, start, goal):

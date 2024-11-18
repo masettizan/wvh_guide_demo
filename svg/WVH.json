@@ -1,4 +1,30 @@
 {
+    "f1_robot_position": {
+        "x": 684.0,
+        "y": -600.95,
+        "neighbors": [
+            "f1_p28"
+        ],
+        "floor": 1,
+        "type": "start",
+        "real_x": -0.85,
+        "real_y": 5.75,
+        "real_theta": 0.0
+    },
+    "f1_p28": {
+        "x": 684.0,
+        "y": -627.0,
+        "neighbors": [
+            "f1_p11",
+            "f1_p12",
+            "f1_robot_position"
+        ],
+        "floor": 1,
+        "type": "edge",
+        "real_x": -0.1,
+        "real_y": 6.0,
+        "real_theta": 0.0
+    },
     "f1_p1": {
         "x": 737.4,
         "y": 670.97,
@@ -24,8 +50,8 @@
         ],
         "floor": 1,
         "type": "elevator",
-        "real_x": -2.8,
-        "real_y": -11.0,
+        "real_x": -11.2,
+        "real_y": 1.36,
         "real_theta": 0.0
     },
     "f1_p2": {
@@ -49,9 +75,9 @@
             "f1_p2"
         ],
         "floor": 1,
-        "type": "room",
-        "real_x": -5.3,
-        "real_y": -18.3,
+        "type": "room 102",
+        "real_x": -17.9,
+        "real_y": -1.79,
         "real_theta": 0.0
     },
     "f1_p3": {
@@ -88,9 +114,9 @@
             "f1_p4"
         ],
         "floor": 1,
-        "type": "room",
-        "real_x": -9.4,
-        "real_y": -20.15,
+        "type": "room 168",
+        "real_x": -21.1,
+        "real_y": -0.1,
         "real_theta": 0.0
     },
     "f1_p5": {
@@ -114,9 +140,9 @@
             "f1_p5"
         ],
         "floor": 1,
-        "type": "room",
-        "real_x": -14.6,
-        "real_y": -20.15,
+        "type": "room 166",
+        "real_x": -22.7,
+        "real_y": 6.0,
         "real_theta": 0.0
     },
     "f1_p6": {
@@ -140,9 +166,9 @@
             "f1_p6"
         ],
         "floor": 1,
-        "type": "room",
-        "real_x": -16.8,
-        "real_y": -17.4,
+        "type": "room 164",
+        "real_x": -23.2,
+        "real_y": 8.2,
         "real_theta": 0.0
     },
     "f1_p7": {
@@ -166,9 +192,9 @@
             "f1_p7"
         ],
         "floor": 1,
-        "type": "room",
-        "real_x": -20.5,
-        "real_y": -15.5,
+        "type": "room 162",
+        "real_x": -24.2,
+        "real_y": 11.4,
         "real_theta": 0.0
     },
     "f1_p8": {
@@ -179,8 +205,8 @@
         ],
         "floor": 1,
         "type": "exit",
-        "real_x": -24.3,
-        "real_y": -14.7,
+        "real_x": -25.4,
+        "real_y": 16.4,
         "real_theta": 0.0
     },
     "f1_p9": {
@@ -232,8 +258,8 @@
         ],
         "floor": 1,
         "type": "exit",
-        "real_x": -6.0,
-        "real_y": 3.2,
+        "real_x": -1.9,
+        "real_y": 12.0,
         "real_theta": 0.0
     },
     "f1_p13": {
@@ -285,8 +311,8 @@
         ],
         "floor": 1,
         "type": "stairs",
-        "real_x": 14.0,
-        "real_y": -2.6,
+        "real_x": 3.11,
+        "real_y": -8.01,
         "real_theta": 0.0
     },
     "f1_p16": {
@@ -297,7 +323,7 @@
             "f1_p17"
         ],
         "floor": 1,
-        "type": "bathroom",
+        "type": "edge",
         "real_x": -1.64,
         "real_y": -8.9,
         "real_theta": 0.0
@@ -310,9 +336,9 @@
             "f1_p18"
         ],
         "floor": 1,
-        "type": "edge",
-        "real_x": 0.0,
-        "real_y": 0.0,
+        "type": "water fountain",
+        "real_x": 2.0,
+        "real_y": -10.5,
         "real_theta": 0.0
     },
     "f1_p18": {
@@ -337,8 +363,8 @@
         ],
         "floor": 1,
         "type": "bathroom",
-        "real_x": 0.0,
-        "real_y": 0.0,
+        "real_x": 1.79,
+        "real_y": -10.9,
         "real_theta": 0.0
     },
     "f1_p20": {
@@ -349,8 +375,8 @@
         ],
         "floor": 1,
         "type": "bathroom",
-        "real_x": 0.0,
-        "real_y": 0.0,
+        "real_x": 1.79,
+        "real_y": -10.9,
         "real_theta": 0.0
     },
     "f1_p21": {
@@ -374,9 +400,9 @@
             "f1_p21"
         ],
         "floor": 1,
-        "type": "room",
-        "real_x": 17.0,
-        "real_y": -2.5,
+        "type": "room 108",
+        "real_x": 5.5,
+        "real_y": -10.8,
         "real_theta": 0.0
     },
     "f1_p22": {
@@ -401,8 +427,8 @@
         ],
         "floor": 1,
         "type": "exit",
-        "real_x": 0.0,
-        "real_y": 0.0,
+        "real_x": 11.0,
+        "real_y": -13.2,
         "real_theta": 0.0
     },
     "f1_p24": {
@@ -426,9 +452,9 @@
             "f1_p24"
         ],
         "floor": 1,
-        "type": "room",
-        "real_x": 25.7,
-        "real_y": 0.38,
+        "type": "room 108",
+        "real_x": 13.7,
+        "real_y": -16.5,
         "real_theta": 0.0
     },
     "f1_p25": {
@@ -452,9 +478,9 @@
             "f1_p25"
         ],
         "floor": 1,
-        "type": "room",
-        "real_x": 29.5,
-        "real_y": 1.9,
+        "type": "room 110",
+        "real_x": 15.3,
+        "real_y": -17.3,
         "real_theta": 0.0
     },
     "f1_p26": {
@@ -478,9 +504,9 @@
             "f1_p26"
         ],
         "floor": 1,
-        "type": "room",
-        "real_x": 36.7,
-        "real_y": 4.50,
+        "type": "room 110",
+        "real_x": 21.5,
+        "real_y": -22.2,
         "real_theta": 0.0
     },
     "f1_p27": {
@@ -491,8 +517,8 @@
         ],
         "floor": 1,
         "type": "exit",
-        "real_x": 38.2,
-        "real_y": 6.3,
+        "real_x": 23.8,
+        "real_y": -23.9,
         "real_theta": 0.0
     },
     "f2_p0": {

@@ -77,7 +77,7 @@ def generate_launch_description():    # a launcher for text to speech and its te
                 #TODO: change based on room
                 'map': os.path.join(wvh_guide_map_dir, 'wvh_first_floor.yaml'), #os.path.join(wvh_guide_map_dir, 'exp', 'exp120.yaml'), #
                 'autostart': 'true',
-                'use_rviz': 'false',
+                'use_rviz': 'true',
                 'use_sim_time': 'false',
                 'output': 'log'
             }.items()

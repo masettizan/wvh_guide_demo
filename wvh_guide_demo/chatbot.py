@@ -173,7 +173,7 @@ class Chatbot(Node):
                 string = response.content
                 if string.startswith("(") and string.endswith(")"):
                     if 'repeat=' in string:
-                        r_idx =string.find('repeat=') + len('repeat=')
+                        r_idx = string.find('repeat=') + len('repeat=')
                         print(r_idx)
                     if 'next_speech=' in string:
                         start_idx = string.find('next_speech=')
@@ -344,30 +344,17 @@ class Chatbot(Node):
     def send_recalibrate_goal(self):
         goal_msg = Recalibrate.Goal()
 
-        self.get_logger().info("Waiting for recalibration action server...")
-        self._recalibrate_action_client.wait_for_server()
-        self.get_logger().info("Recalibration action server found!")
-
-        self._goal_in_progress = True
-        self._send_goal_future = self._recalibrate_action_client.send_goal_async(goal_msg, feedback_callback=self.recalibrate_feedback_callback)
-        self._send_goal_future.add_done_callback(self.recalibrate_goal_response_callback)
-
-    def recalibrate_goal_response_callback(self, future):
-        goal_handle = future.result()
-
-        if not goal_handle.accepted:
-            self.get_logger().info('Recalibration goal was rejected.')
-            self._goal_in_progress = False
-            return
+        future = self._recalibrate_action_client.send_goal_async(goal_msg, feedback_callback=self.recalibrate_feedback_callback)
+        rclpy.spin_until_future_complete(self, future)
+        goal_future = future.result().get_result_async()
         
-        self.get_logger().info('Recalibration goal accepted, waiting for result...')
-        self._get_result_future = goal_handle.get_result_async()
-        self._get_result_future.add_done_callback(self.recalibrate_result_callback)
-
-    def recalibrate_result_callback(self, future):
-        result = future.result().result
+        #blocking call
+        while not goal_future.done():
+            self.get_logger().info("recalibrating")
+            rclpy.spin_until_future_complete(self, goal_future, timeout_sec=0.5)
+        
+        result = goal_future.result().result
         self.get_logger().info(f'Recalibration result received.\ndBFS: {result.dbfs}\nsilence_threshold: {result.threshold}')
-        self._goal_in_progress = True
     
     def recalibrate_feedback_callback(self, feedback_msg):
         self.get_logger().info(f'Recalibration feedback received: {feedback_msg}')
@@ -398,7 +385,7 @@ class Chatbot(Node):
 
     '''INTERACTION'''
     def interaction(self):
-        #self.send_recalibrate_goal()
+        self.send_recalibrate_goal()
         self.send_tts_goal('Dear Percy, I am ready to go.')
         self.head_random_move_flag = True
         self.head_target['tilt'] = 0.3
@@ -448,7 +435,7 @@ class Chatbot(Node):
 
 
 def main(args=None):
-    rclpy.init(args=args)
+    #rclpy.init(args=args)
 
     hello_node = hm.HelloNode.quick_create('hello')
     node = Chatbot(hello_node)
