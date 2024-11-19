@@ -79,33 +79,72 @@ def llm_parse_response(tools, user_input):
     print(response_msg)
     return organize_llm_response(response_msg)
 
+# Interpret and organize llm result
 def organize_llm_response(response):
     if response.content is not None:
+        # try:
+        #     repeat, next_speech = ast.literal_eval(response.content)
+        # except SyntaxError:
+        #     string = response.content
+        #     string.strip()
+        #     self.get_logger().info(f'ji{string}hi')
+
+
+            # extract the two components from string --  {"repeat":True, "next_speech": "speech"}
         try:
-            repeat, next_speech = ast.literal_eval(response.content)
-        except SyntaxError:
-            repeat = True
-            next_speech = response.content
+            string = response.content
+            string.strip()
+            output =  ast.literal_eval(response.content)
+            print(f"output: {output[0]}, {output[1]}")
+            return output[0], output[1]
+        except Exception as e:
+            print(f'in exception : {string}')
+            if string.startswith("(") and string.endswith(")") or  string.startswith("'(") and string.endswith(")'") :
+                r_idx = 0
+                s_idx = 0
+                start_idx = 0
+                print("in")
+                if 'repeat=' in string or 'repeat:' in string:
+                    print(f'heyo')
+                    r_idx = string.find('repeat=') + len('repeat=')
+                    print(r_idx)
+                if 'next_speech=' in string or 'next_speech:' in string:
+                    print('next')
+                    start_idx = string.find('next_speech=')
+                    s_idx =  start_idx + len('next_speech=')
+                    print(s_idx, start_idx)
+
+                repeat = string[r_idx:start_idx]
+                if repeat.find(',') != -1:
+                    repeat[:repeat.find(',')]
+                repeat.strip()
+                repeat = bool(repeat)
+
+                next_speech = string[s_idx: -1]
+            else:
+                print('broken')
+                repeat = True
+                next_speech = response.content
     # a function may be getting called
     else:
+        print('in else')
         repeat = True
         next_speech = ''
 
     if response.tool_calls is not None:
         next_speech = response.tool_calls[0] #its a list
 
-    return repeat, next_speech
+    return repeat, next_speech 
+'''        #function calling
+    if result.tool_call != '':
+        arguments = json.loads(result.tool_call)
+        goal = arguments['goal']
+        name = result.function_name
 
-    '''        #function calling
-        if result.tool_call != '':
-            arguments = json.loads(result.tool_call)
-            goal = arguments['goal']
-            name = result.function_name
-
-            if 'directions' in name:
-                self.send_directions_goal(goal) 
-            elif 'navigation' in name:
-                self.send_navigation_goal(goal)  
+        if 'directions' in name:
+            self.send_directions_goal(goal) 
+        elif 'navigation' in name:
+            self.send_navigation_goal(goal)  
 '''
 import ast
 # Initialize tools and test with a user input
@@ -114,4 +153,3 @@ tools = define_callable_functs()
 while True:
     text = input()
     print(llm_parse_response(tools, text))
-    

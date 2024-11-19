@@ -178,39 +178,23 @@ class Chatbot(Node):
     # Interpret and organize llm result
     def organize_llm_response(self, response):
         if response.content is not None:
-            # try:
-            #     repeat, next_speech = ast.literal_eval(response.content)
-            # except SyntaxError:
-            #     string = response.content
-            #     string.strip()
-            #     self.get_logger().info(f'ji{string}hi')
-
-
-                # extract the two components from string --  {"repeat":True, "next_speech": "speech"}
             try:
                 string = response.content
                 string.strip()
-                output = json.loads(string)
-                self.get_logger().info(f"{output}")
-                return output['repeat'], output['next_speech']
+                output =  ast.literal_eval(response.content)
+                self.get_logger().info((f"output: {output[0]}, {output[1]}"))
+                return output[0], output[1]
             except Exception as e:
-                return True, "I have some trouble. Please try again"
-                
-
-
-
+                self.get_logger().info(f'in exception : {string}')
                 if string.startswith("(") and string.endswith(")") or  string.startswith("'(") and string.endswith(")'") :
                     r_idx = 0
                     s_idx = 0
                     start_idx = 0
                     if 'repeat=' in string or 'repeat:' in string:
-                        self.get_logger().info(f'heyo')
                         r_idx = string.find('repeat=') + len('repeat=')
-                        print(r_idx)
                     if 'next_speech=' in string or 'next_speech:' in string:
                         start_idx = string.find('next_speech=')
                         s_idx =  start_idx + len('next_speech=')
-                        print(s_idx, start_idx)
 
                     repeat = string[r_idx:start_idx]
                     if repeat.find(',') != -1:
@@ -219,8 +203,10 @@ class Chatbot(Node):
                     repeat = bool(repeat)
 
                     next_speech = string[s_idx: -1]
-                repeat = True
-                next_speech = response.content
+                else:
+                    self.get_logger().info('incorrect')
+                    repeat = True
+                    next_speech = response.content
         # a function may be getting called
         else:
             repeat = True
@@ -228,9 +214,8 @@ class Chatbot(Node):
 
         if response.tool_calls is not None:
             next_speech = response.tool_calls[0] #its a list
-
         return repeat, next_speech 
-    
+        
     # Define the personality prompt according to the new requirements
     def llm_parse_response(self, user_input):
         self.personality = '''
