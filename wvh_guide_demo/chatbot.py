@@ -63,13 +63,15 @@ class Chatbot(Node):
         self.latest_face = []
         # create ros subscriber to face
         self.face_sub = self.create_subscription(MarkerArray, '/faces/marker_array', self.face_callback, 10)
+        self.get_logger().info('added subscription to faces marker array')
         # Call on_timer function every second
         self.head_random_move_flag = True
         self.head_target = {
             'pan': 0.0,
             'tilt': 0.4
-        }
+        } 
         self.face_timer = self.create_timer(2.0, self.face_movement)
+        self.get_logger().info('finished initialization')
 
     def face_movement(self):
         std = {
@@ -86,23 +88,31 @@ class Chatbot(Node):
             self.move_head(head_tilt, head_pan)
 
     def face_callback(self, msg):
+        # self.get_logger().info(f'messages: {msg}')
+        # self.get_logger().info(f'{msg}')
         self.latest_face = msg.markers
 
     def wait_for_interactor(self, total_time = 1, timeout = -1):
 
         def face_close_enough(faces):
+            # self.get_logger().info('face close eno0ugh')
             return len(faces) > 0
 
         # move head up
         started = False
         start_time = datetime.now()
         while True and (timeout == -1 or (datetime.now() - start_time).total_seconds() < timeout):
-
+            rclpy.spin_once(self)
+            # self.get_logger().info(f'{face_close_enough(copy.deepcopy(self.latest_face))}')
+            # self.get_logger().info(f'{(self.latest_face)}')
             if face_close_enough(copy.deepcopy(self.latest_face)):
+                # self.get_logger().info('we;re gere')
                 if not started:
+                    # self.get_logger().info('started face ckkse e3ogyug')
                     started = True
                     interact_start_time = datetime.now()
                 else:
+                    # self.get_logger().info(' not started face close ebnough')
                     if (datetime.now() - interact_start_time).total_seconds() > total_time:
                         return True
         return False
@@ -161,21 +171,43 @@ class Chatbot(Node):
             }
         ]
 
+        self.get_logger().info('callable functions defined')
         return tools
 
    
     # Interpret and organize llm result
     def organize_llm_response(self, response):
         if response.content is not None:
+            # try:
+            #     repeat, next_speech = ast.literal_eval(response.content)
+            # except SyntaxError:
+            #     string = response.content
+            #     string.strip()
+            #     self.get_logger().info(f'ji{string}hi')
+
+
+                # extract the two components from string --  {"repeat":True, "next_speech": "speech"}
             try:
-                repeat, next_speech = ast.literal_eval(response.content)
-            except SyntaxError:
                 string = response.content
-                if string.startswith("(") and string.endswith(")"):
-                    if 'repeat=' in string:
+                string.strip()
+                output = json.loads(string)
+                self.get_logger().info(f"{output}")
+                return output['repeat'], output['next_speech']
+            except Exception as e:
+                return True, "I have some trouble. Please try again"
+                
+
+
+
+                if string.startswith("(") and string.endswith(")") or  string.startswith("'(") and string.endswith(")'") :
+                    r_idx = 0
+                    s_idx = 0
+                    start_idx = 0
+                    if 'repeat=' in string or 'repeat:' in string:
+                        self.get_logger().info(f'heyo')
                         r_idx = string.find('repeat=') + len('repeat=')
                         print(r_idx)
-                    if 'next_speech=' in string:
+                    if 'next_speech=' in string or 'next_speech:' in string:
                         start_idx = string.find('next_speech=')
                         s_idx =  start_idx + len('next_speech=')
                         print(s_idx, start_idx)
@@ -207,6 +239,8 @@ class Chatbot(Node):
 
         - repeat: A boolean value indicating whether to continue the conversation (True for yes, False for no).
         - next_speech: A response string that addresses the user's message directly.
+
+        The output should be a JSON object that looks like: {"repeat":True, "next_speech": "speech"}
 
         You can both give instructions and guide users.
         '''
@@ -385,7 +419,8 @@ class Chatbot(Node):
 
     '''INTERACTION'''
     def interaction(self):
-        self.send_recalibrate_goal()
+        # commenting out for testing
+        # self.send_recalibrate_goal()
         self.send_tts_goal('Dear Percy, I am ready to go.')
         self.head_random_move_flag = True
         self.head_target['tilt'] = 0.3
