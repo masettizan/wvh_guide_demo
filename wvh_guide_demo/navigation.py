@@ -16,6 +16,7 @@ from tf2_ros.transform_listener import TransformListener
 from rclpy.time import Time
 from tf2_ros import TransformException
 import time
+from tf_transformations import quaternion_from_euler
 
 # gives position information about base_link
 class FrameListener(Node):
@@ -70,21 +71,10 @@ class Navigate(Node):
         exe_thread.start()
 
         self.nav = BasicNavigator()
-        self.get_logger().info('\n\n\n\n\n GET POSE \n\n\n\n\n')
-        #-19.754 -7.256 -2.917
-
-        # self.current_pose = self._get_position(x=-20.0, y=-5.5)# self._get_position(x=0.0, y=0.0) # x, y, theta
         self.start_node = 'f1_robot_position'
         self.current_pose = self._get_position(x=-0.85, y=5.75)
-        #TODO FIX THIS SHIT% NOPT WORKING
-        # curr_pose = self.robot_position.get_position()
-        # self.current_pose = self._get_position(x=curr_pose.translation.x, 
-        #                                        y=curr_pose.translation.y, 
-        #                                        z=curr_pose.rotation.z, 
-        #                                        w=curr_pose.rotation.w)
  
-        self.nav.setInitialPose(self.current_pose) #TODO
-        self.get_logger().info('\n\n\n\n\n SET POSE \n\n\n\n\n')
+        self.nav.setInitialPose(self.current_pose)
         self.nav.waitUntilNav2Active()
 
         self._action_server = ActionServer(
@@ -133,7 +123,7 @@ class Navigate(Node):
         self.graph = {}
         self.elevators = ['f1_elevator', 'f2_elevator', 'f3_elevator', 'f4_elevator']
         
-        with open("/home/hello-robot/ament_ws/src/wvh_guide_demo/svg/WVH.json", "r") as f: #with open("/home/hello-robot/ament_ws/src/wvh_guide_demo/svg/exp/EXP.json", "r") as f: #
+        with open("/home/hello-robot/ament_ws/src/wvh_guide_demo/svg/WVH.json", "r") as f: # with open("/home/hello-robot/ament_ws/src/wvh_guide_demo/svg/exp/EXP.json", "r") as f:
             data = json.load(f)
         self.graph = data
     
@@ -152,7 +142,10 @@ class Navigate(Node):
 
         idx = weights.index(min(weights))
         key_goal = options[idx]
-        goal_pose = self._get_position(x=self.graph[key_goal]['real_x'], y=self.graph[key_goal]['real_y'])
+
+        # rotation of robot given in yaw
+        ori = quaternion_from_euler(0, 0, self.graph[key_goal]['real_theta']) # results in form [w,x,y,z]
+        goal_pose = self._get_position(x=self.graph[key_goal]['real_x'], y=self.graph[key_goal]['real_y'], z= ori[2], w=ori[0])
         
         return goal_pose
 

@@ -3,6 +3,12 @@
 import json
 import openai
 from openai.types.chat.chat_completion_message_tool_call import ChatCompletionMessageToolCall
+# from wvh_guide_demo_msgs.action import Location
+from pydantic import BaseModel
+
+class SentenceInterpretation(BaseModel):
+    repeat: bool
+    next_speech: str
 
 # Define functions with updated parameters and strict mode
 def define_callable_functs():
@@ -20,7 +26,7 @@ def define_callable_functs():
             'required': ['goal'],
             'additionalProperties': False
         },
-        'strict': False
+        'strict': True
     }
 
     get_navigated = {
@@ -37,7 +43,7 @@ def define_callable_functs():
             'required': ['goal'],
             'additionalProperties': False
         },
-        'strict': False
+        'strict': True
     }
 
     tools = [
@@ -57,27 +63,49 @@ def define_callable_functs():
 # Define the personality prompt according to the new requirements
 def llm_parse_response(tools, user_input):
     personality = '''
-    You are a friendly and helpful robot assistant designed to understand user intent and respond appropriately.
-    For each user message, return a tuple with two elements: repeat, and next_speech.
+        You are a friendly and helpful robot assistant designed to understand user intent and respond appropriately.
+        For each user message, return a tuple with two elements: repeat, and next_speech.
 
-    - repeat: A boolean value indicating whether to continue the conversation (True for yes, False for no).
-    - next_speech: A response string that addresses the user's message directly.
+        - repeat: A boolean value indicating whether to continue the conversation (True for yes, False for no).
+        - next_speech: A response string that addresses the user's message directly.
 
-    You can both give instructions and guide users.
-    '''
-    response = client.chat.completions.create(
+        The output should be a JSON object that looks like: {"repeat":True, "next_speech": "speech"}
+
+        You can both give instructions and guide users.
+        '''
+    response = openai.beta.chat.completions.parse(
         model="gpt-4o-mini",
-        messages=[
-            {"role": "system", "content": personality},
-            {"role": "user", "content": user_input},
-        ],
+        messages=[{"role": "system", "content": personality},  {"role": "user", "content": user_input}],
         tools=tools,
+        response_format=SentenceInterpretation
     )
-    
     response_msg = response.choices[0].message
 
     print(response_msg)
-    return organize_llm_response(response_msg)
+    return org(response_msg)
+
+def org(response):
+    if response.refusal:
+        return True, "I have some trouble. Please try again", None
+    
+    function = None
+    if len(response.tool_calls) > 0:
+        function = response.tool_calls[0]
+    
+    if response.content is not None:
+        try:
+            string = response.content
+            string.strip()
+            output = json.loads(string)
+            return output['repeat'], output['next_speech'], function
+        except Exception as e:
+            return True, "I have some trouble. Please try again", None
+
+    if function is not None:
+        return True, None, function #its a list
+    return True, "Sorry I am confused, can you try again", None
+
+
 
 # Interpret and organize llm result
 def organize_llm_response(response):

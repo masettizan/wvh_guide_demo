@@ -18,9 +18,13 @@ from parcs_stt_tts_msgs.action import Recalibrate
 import hello_helpers.hello_misc as hm
 from visualization_msgs.msg import MarkerArray
 from datetime import datetime
+from pydantic import BaseModel
 import copy
 
 # from wvh_guide_demo_msgs.action import Location
+class SentenceInterpretation(BaseModel):
+    repeat: bool
+    next_speech: str
 
 class Chatbot(Node):
 
@@ -177,44 +181,29 @@ class Chatbot(Node):
    
     # Interpret and organize llm result
     def organize_llm_response(self, response):
+        if response.refusal:
+            return True, "I have some trouble. Please try again", None
+        
+        function = None
+        if len(response.tool_calls) > 0:
+            function = response.tool_calls[0]
+        
         if response.content is not None:
             try:
                 string = response.content
                 string.strip()
-                output =  ast.literal_eval(response.content)
-                self.get_logger().info((f"output: {output[0]}, {output[1]}"))
-                return output[0], output[1]
+                output = json.loads(string)
+                return output['repeat'], output['next_speech'], function
             except Exception as e:
-                self.get_logger().info(f'in exception : {string}')
-                if string.startswith("(") and string.endswith(")") or  string.startswith("'(") and string.endswith(")'") :
-                    r_idx = 0
-                    s_idx = 0
-                    start_idx = 0
-                    if 'repeat=' in string or 'repeat:' in string:
-                        r_idx = string.find('repeat=') + len('repeat=')
-                    if 'next_speech=' in string or 'next_speech:' in string:
-                        start_idx = string.find('next_speech=')
-                        s_idx =  start_idx + len('next_speech=')
+                return True, "I have some trouble. Please try again", None
 
-                    repeat = string[r_idx:start_idx]
-                    if repeat.find(',') != -1:
-                        repeat[:repeat.find(',')]
-                    repeat.strip()
-                    repeat = bool(repeat)
+        if function is not None:
+            return True, None, function #its a list
+        return True, "Sorry I am confused, can you try again", None
 
-                    next_speech = string[s_idx: -1]
-                else:
-                    self.get_logger().info('incorrect')
-                    repeat = True
-                    next_speech = response.content
-        # a function may be getting called
-        else:
-            repeat = True
-            next_speech = ''
 
-        if response.tool_calls is not None:
-            next_speech = response.tool_calls[0] #its a list
-        return repeat, next_speech 
+
+
         
     # Define the personality prompt according to the new requirements
     def llm_parse_response(self, user_input):
@@ -236,6 +225,7 @@ class Chatbot(Node):
             model="gpt-4o-mini",
             messages=[{"role": "system", "content": self.personality}] + self.chatbot_history,
             tools=self.tools,
+            response_format=SentenceInterpretation
         )
         
         response_msg = response.choices[0].message
@@ -418,16 +408,16 @@ class Chatbot(Node):
                 #dialoge
                 response = self.send_listen_goal()
                 #given response, parse it
-                repeat, next_speech = self.llm_parse_response(response)
+                repeat, next_speech, function = self.llm_parse_response(response)
                 
-                if isinstance(next_speech, str):
+                if next_speech and isinstance(next_speech, str):
                     self.send_tts_goal(next_speech)
-                else:
-                    goal = json.loads(next_speech.function.arguments)['goal']
-                    function = next_speech.function.name
+                if function is not None: #function calling
+                    goal = json.loads(function)['goal']
+                    type = function.function.name
 
-                    if function == 'send_navigation_goal':
-                        self.complete_function_call(next_speech.id, goal)
+                    if type == 'send_navigation_goal':
+                        self.complete_function_call(function.id, goal)
                         
                         self.send_tts_goal(f'Sure, I can help you get to the {goal}')
                         self.head_random_move_flag = False
@@ -441,8 +431,8 @@ class Chatbot(Node):
                             self.send_tts_goal('We have arrived!')
                         else:
                             self.send_tts_goal("It seems we're having trouble navigating to your goal.")
-                    elif function == 'send_directions_goal':
-                        self.complete_function_call(next_speech.id, goal)
+                    elif type == 'send_directions_goal':
+                        self.complete_function_call(function.id, goal)
 
                         self.send_tts_goal(f'Sure, I can give directions to the {goal}')
                         transcript = self.send_directions_goal(goal)
@@ -460,7 +450,7 @@ def main(args=None):
     hello_node = hm.HelloNode.quick_create('hello')
     node = Chatbot(hello_node)
 
-    executor = rclpy.executors.MultiThreadedExecutor(num_threads=10)
+    executor = rclpy.executors.MultiThreadedExecutor(num_threads=12)
     executor.add_node(node)
 
     executor_thread = threading.Thread(target=executor.spin, daemon=True)

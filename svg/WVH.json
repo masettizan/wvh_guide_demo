@@ -9,9 +9,9 @@
         "type": "start",
         "real_x": -0.85,
         "real_y": 5.75,
-        "real_theta": 0.0
+        "real_theta": 0.179
     },
-    "f1_p28": {
+    "f1_p0": {
         "x": 684.0,
         "y": -627.0,
         "neighbors": [
@@ -52,7 +52,7 @@
         "type": "elevator",
         "real_x": -11.2,
         "real_y": 1.36,
-        "real_theta": 0.0
+        "real_theta": -1.333
     },
     "f1_p2": {
         "x": 733.3,
@@ -78,7 +78,7 @@
         "type": "room 102",
         "real_x": -17.9,
         "real_y": -1.79,
-        "real_theta": 0.0
+        "real_theta": 1.777
     },
     "f1_p3": {
         "x": 733.3,
@@ -117,7 +117,7 @@
         "type": "room 168",
         "real_x": -21.1,
         "real_y": -0.1,
-        "real_theta": 0.0
+        "real_theta": -2.821
     },
     "f1_p5": {
         "x": 586.2,
@@ -143,7 +143,7 @@
         "type": "room 166",
         "real_x": -22.7,
         "real_y": 6.0,
-        "real_theta": 0.0
+        "real_theta": -2.809
     },
     "f1_p6": {
         "x": 554.05,
@@ -169,7 +169,7 @@
         "type": "room 164",
         "real_x": -23.2,
         "real_y": 8.2,
-        "real_theta": 0.0
+        "real_theta": -2.760
     },
     "f1_p7": {
         "x": 480.31,
@@ -195,7 +195,7 @@
         "type": "room 162",
         "real_x": -24.2,
         "real_y": 11.4,
-        "real_theta": 0.0
+        "real_theta": -2.777
     },
     "f1_p8": {
         "x": 386.46,
@@ -207,8 +207,8 @@
         "type": "exit",
         "real_x": -25.4,
         "real_y": 16.4,
-        "real_theta": 0.0
-    },
+        "real_theta": -1.604
+    }, 
     "f1_p9": {
         "x": 733.24,
         "y": 501.62,
@@ -230,7 +230,7 @@
             "f1_p9"
         ],
         "floor": 1,
-        "type": "water",
+        "type": "edge",
         "real_x": 1.0,
         "real_y": -4.55,
         "real_theta": 0.0
@@ -260,7 +260,7 @@
         "type": "exit",
         "real_x": -1.9,
         "real_y": 12.0,
-        "real_theta": 0.0
+        "real_theta": -1.374
     },
     "f1_p13": {
         "x": 456.35,
@@ -313,7 +313,7 @@
         "type": "stairs",
         "real_x": 3.11,
         "real_y": -8.01,
-        "real_theta": 0.0
+        "real_theta": 0.898
     },
     "f1_p16": {
         "x": 944.83,
@@ -339,7 +339,7 @@
         "type": "water fountain",
         "real_x": 2.0,
         "real_y": -10.5,
-        "real_theta": 0.0
+        "real_theta": 0.962
     },
     "f1_p18": {
         "x": 938.87,
@@ -365,7 +365,7 @@
         "type": "bathroom",
         "real_x": 1.79,
         "real_y": -10.9,
-        "real_theta": 0.0
+        "real_theta": 2.582
     },
     "f1_p20": {
         "x": 952.03,
@@ -377,7 +377,7 @@
         "type": "bathroom",
         "real_x": 1.79,
         "real_y": -10.9,
-        "real_theta": 0.0
+        "real_theta": 2.582
     },
     "f1_p21": {
         "x": 968.05,
@@ -403,7 +403,7 @@
         "type": "room 108",
         "real_x": 5.5,
         "real_y": -10.8,
-        "real_theta": 0.0
+        "real_theta": 0.861
     },
     "f1_p22": {
         "x": 1063.63,
@@ -429,7 +429,7 @@
         "type": "exit",
         "real_x": 11.0,
         "real_y": -13.2,
-        "real_theta": 0.0
+        "real_theta": -2.188
     },
     "f1_p24": {
         "x": 1087.96,
@@ -455,7 +455,7 @@
         "type": "room 108",
         "real_x": 13.7,
         "real_y": -16.5,
-        "real_theta": 0.0
+        "real_theta": 0.919
     },
     "f1_p25": {
         "x": 1116.39,
@@ -481,7 +481,7 @@
         "type": "room 110",
         "real_x": 15.3,
         "real_y": -17.3,
-        "real_theta": 0.0
+        "real_theta": 0.934
     },
     "f1_p26": {
         "x": 1231.22,
@@ -507,7 +507,7 @@
         "type": "room 110",
         "real_x": 21.5,
         "real_y": -22.2,
-        "real_theta": 0.0
+        "real_theta": 0.976
     },
     "f1_p27": {
         "x": 1262.14,
@@ -519,7 +519,7 @@
         "type": "exit",
         "real_x": 23.8,
         "real_y": -23.9,
-        "real_theta": 0.0
+        "real_theta": 2.453
     },
     "f2_p0": {
         "x": 737.4,
