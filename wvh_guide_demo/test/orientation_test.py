@@ -1,4 +1,5 @@
 #! /usr/bin/env python3
+import json
 import rclpy
 import time
 import csv
@@ -9,18 +10,9 @@ from rclpy.node import Node
 import numpy as np
 
 def set_locations():
-    graph = {}
-    with open('/home/masettizan/ros2_ws/src/wvh_guide_demo/json/floors.geojson') as f:
-        data = geojson.load(f)
-        
-    for feature in data['features']:
-        info = {}
-        info['x'] = float(feature['geometry']['coordinates'][0])
-        info['y'] = float(feature['geometry']['coordinates'][1])
-        info['neighbors'] = feature['properties']['neighbors']
-        info['floor'] = feature['properties']['floor']
-        graph[feature['properties']['id']] = info
-    return graph
+    with open("/home/masettizan/ros2_ws/src/wvh_guide_demo/svg/WVH.json", "r") as f: #with open("/home/hello-robot/ament_ws/src/wvh_guide_demo/svg/exp/EXP.json", "r") as f: #
+        data = json.load(f)
+    return data
 
 def get_orientation_directions(heading, edge, graph):
     # find difference in starting node to end node of edge
@@ -63,5 +55,5 @@ def get_angle(heading, a, b):
 
 graph = set_locations()
 
-current, directions = get_orientation_directions(np.array([0, -1]), ('f2_p24', 'f2_p25'), graph)
+current, directions = get_orientation_directions(np.array([0, -1]), ('f1_robot_position', 'f1_p0'), graph)
 print(current, directions)

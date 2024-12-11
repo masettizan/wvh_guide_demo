@@ -33,6 +33,7 @@ class Graph(Node):
             callback_group=self.directions_callback_group
         )
   
+    #what we return over action server
     def directions_callback(self, goal_handle):
         self.get_logger().info("Executing Directions goal...")
 
@@ -54,30 +55,16 @@ class Graph(Node):
             goal_node = converted_type
 
         directions, end_orientation, end_position = self.get_directions(current_orientation, current_position, goal_node)
-        result.directions = ', '.join(self.simplify(directions))
+        result.directions = ', '.join(self.simplify(directions)) #calling simplify fuinctino
         ori = end_orientation.astype(np.float32)
         pos = end_position.astype(np.float32)
         result.orientation = ori.tolist()
         result.position = pos.tolist()
 
         return result
+    
 
-    def locations_callback(self, goal_handle):
-        self.get_logger().info("Executing Locations goal...")
-        
-        request = goal_handle.request
-        start_node = request.start_node
-        goal = request.type
 
-        result = Directions.Result()
-
-        if goal in self.graph.keys():
-            result.goal_node = goal
-        else:
-            converted_type = self.get_node_from_type(start_node, goal)
-            result.goal_node = converted_type
-            
-        return result
 
     def _set_locations(self):
         #TODO: switch based on device
@@ -283,6 +270,26 @@ class Graph(Node):
                 index += 1
         return directions
 
+    def clock_to_cardinal(self, action):
+        # The 12 o'clock position is straight ahead (0 degrees)
+        oclock_angles = {
+            0: 'forwards',
+            1: 'forwards',
+            2: 'right',
+            3: 'right',
+            4: 'right',
+            5: 'backwards',
+            6: 'backwards',
+            7: 'backwards',
+            8: 'left',
+            9: 'left',
+            10: 'left',
+            11: 'forwards',
+            12: 'forwards'
+        }
+        return oclock_angles.get(action, None)
+
+
     def simplify(self, directions):
         dir = self._simplify_rotation(directions)
         dir = self._simplify_translation(dir)
@@ -292,12 +299,15 @@ class Graph(Node):
         for step in dir:
             type, action = step
             if type == 'rot':
-                result.append(f"turn to your {action} o'clock")
+                rot = self.clock_to_cardinal(action)
+                if rot:
+                    result.append(f"turn to your {rot}")
             elif type == 'move':
                 if isinstance(action, tuple):
                     result.append(f'take the {action[0]} to floor {action[1]}')
                 else:
-                    result.append(f'move forward {action} ft')
+                    distance = action * 60/4.7
+                    result.append(f'move forward {action} min')
             else:
                 result.append(action)
 

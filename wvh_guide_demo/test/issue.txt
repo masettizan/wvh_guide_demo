@@ -1,0 +1,68 @@
+mm whats happening is that i have an issue with my rotation. And it gets a little messed up under specific circumstances. 
+
+I made a test file so I can raidl test my code out. so what my code currently does is:
+it takes in a starting orientation, a starting position, and a goal position.
+the starting orientation is set to vector [0, -1] in the form [x,y] becaus thats the most common configuration of someone talking to the robot in its starting position.
+the starting position is set to f1_robot_position, which is where the robot is set to have as its hub on the first floor for a similar reason as above.
+the goal position changes depending on where you want instructions to, for testing purposes ive been switching between f1_p0, f1_p11, and f1_p9.
+
+The code calls the function directions_callback which calls the functino get_directions which goes through each edge of the path from start to end point, and gets the directions for each edge. For orientation we go into a function called _get_orientation_directions whic stores the issues in the code.
+
+in _get_orientation_directions i pass in 2 variables, the orientation of the person, which on the first run is the same as the sarting orientation. and the edge were finding instructions for.
+I make the nodes on each side of the edge a vector then pass it into a function called _get_angle, to get the vector of the turn they have to do to travel this edge, the theta they have to turn, and the direction the are turning (aka. cw or ccw represened as +1 or -1)
+
+def _get_orientation_directions(graph, heading, edge):
+    # find difference in starting node to end node of edge
+    vector_u = np.array([graph[edge[0]]['x'], graph[edge[0]]['y']]) # vector a - where we are
+    vector_v = np.array([graph[edge[1]]['x'], graph[edge[1]]['y']]) # vector b - where we are going
+    
+    # heading & head is in vector format
+    head, theta, theta_direction = _get_angle(heading, vector_u, vector_v)
+    print(heading, head, theta)
+    #manipulate heading to turn the amt of head
+    if theta == 0.0:
+        return head, 0
+    
+    return _get_new_facing(heading, np.radians(theta)), (round(theta), theta_direction)        
+
+def _get_new_facing(orientation, turn_amt):
+    rot = np.array([[np.cos(turn_amt), -np.sin(turn_amt)],
+                    [np.sin(turn_amt), np.cos(turn_amt)]])
+    print('new:',rot @ orientation)
+    return rot @ orientation
+
+
+I belive the issues are happening in here. in _get_angle.
+In this function i pass in the two vectors and our current orientation.
+Then have this code:
+
+# vector difference between 'a' and 'b' - hypotonuse
+    goal_vector = v - u
+
+    if not np.any(goal_vector): #elevator
+        return -1*heading, 180, 1
+
+    goal_norm = goal_vector/np.linalg.norm(goal_vector)
+
+    heading = np.array([0,1])
+    heading_norm = heading/np.linalg.norm(heading)
+    cos_theta = np.dot(heading_norm, goal_norm)
+
+    theta = np.arccos(cos_theta)
+    theta_direction = _get_angle_direction(heading_norm, goal_norm) #code to get the direction of the code
+
+    return goal_norm, np.degrees(theta), theta_direction
+
+There are some weird parts in my code.
+Specifically, the way I was doing rotation involves a global 
+and local orientation. there is a global orientation a person is in 
+which is tracked with the variable orientation, which is passed 
+into this function as heading. 
+there is a local orientation which is what we get the amount we need to turn in. 
+the line in which we set heading in the function is there because in local rotation a person 
+s always facing forward, which i chose [0,1] to represent.sobasically a person is locally facing [0,1] we get the amount
+to turn in theta, from our local position. then I apply that rotation to the global one to get the new lobal orientation.
+
+I'm running into the issue though of when the amount to turn is the same as the heading everything breaks.
+So an example run of f1_robot_position to f1_p9 which is what i attached as the photo, it gives me the directions,
+'turn to your 6, move forward 2 minutes, turn to your 3, move forward 4 minutes, turn to your 0, move forward 4 minutes'

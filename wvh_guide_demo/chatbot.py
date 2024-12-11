@@ -200,10 +200,6 @@ class Chatbot(Node):
         if function is not None:
             return True, None, function #its a list
         return True, "Sorry I am confused, can you try again", None
-
-
-
-
         
     # Define the personality prompt according to the new requirements
     def llm_parse_response(self, user_input):

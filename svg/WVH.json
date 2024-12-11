@@ -1,9 +1,9 @@
 {
     "f1_robot_position": {
         "x": 684.0,
-        "y": -600.95,
+        "y": 480.0,
         "neighbors": [
-            "f1_p28"
+            "f1_p0"
         ],
         "floor": 1,
         "type": "start",
@@ -13,14 +13,14 @@
     },
     "f1_p0": {
         "x": 684.0,
-        "y": -627.0,
+        "y": 451.59,
         "neighbors": [
             "f1_p11",
             "f1_p12",
             "f1_robot_position"
         ],
         "floor": 1,
-        "type": "edge",
+        "type": "vertex",
         "real_x": -0.1,
         "real_y": 6.0,
         "real_theta": 0.0
@@ -34,7 +34,7 @@
             "f1_p9"
         ],
         "floor": 1,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -63,7 +63,7 @@
             "f1_p3"
         ],
         "floor": 1,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -88,7 +88,7 @@
             "f1_p4"
         ],
         "floor": 1,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -102,7 +102,7 @@
             "f1_p5"
         ],
         "floor": 1,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -128,7 +128,7 @@
             "f1_p6"
         ],
         "floor": 1,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -154,7 +154,7 @@
             "f1_164"
         ],
         "floor": 1,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -180,7 +180,7 @@
             "f1_p8"
         ],
         "floor": 1,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -218,7 +218,7 @@
             "f1_p11"
         ],
         "floor": 1,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -230,7 +230,7 @@
             "f1_p9"
         ],
         "floor": 1,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 1.0,
         "real_y": -4.55,
         "real_theta": 0.0
@@ -240,11 +240,11 @@
         "y": 451.59,
         "neighbors": [
             "f1_p9",
-            "f1_p12",
+            "f1_p0",
             "f1_p14"
         ],
         "floor": 1,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -253,7 +253,7 @@
         "x": 555.66,
         "y": 452.84,
         "neighbors": [
-            "f1_p11",
+            "f1_p0",
             "f1_p13"
         ],
         "floor": 1,
@@ -284,7 +284,7 @@
             "f1_p21"
         ],
         "floor": 1,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -297,7 +297,7 @@
             "f1_stairs"
         ],
         "floor": 1,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -323,7 +323,7 @@
             "f1_p17"
         ],
         "floor": 1,
-        "type": "edge",
+        "type": "vertex",
         "real_x": -1.64,
         "real_y": -8.9,
         "real_theta": 0.0
@@ -350,7 +350,7 @@
             "f1_p20"
         ],
         "floor": 1,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -388,7 +388,7 @@
             "f1_p22"
         ],
         "floor": 1,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -414,7 +414,7 @@
             "f1_p24"
         ],
         "floor": 1,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -440,7 +440,7 @@
             "f1_108b"
         ],
         "floor": 1,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -466,7 +466,7 @@
             "f1_110a"
         ],
         "floor": 1,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -492,7 +492,7 @@
             "f1_p27"
         ],
         "floor": 1,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -530,7 +530,7 @@
             "f2_p32"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -558,7 +558,7 @@
             "f2_p1"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -586,7 +586,7 @@
             "f2_p3"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -600,7 +600,7 @@
             "f2_p4"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -612,7 +612,7 @@
             "f2_p3"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -624,7 +624,7 @@
             "f2_p2"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -637,7 +637,7 @@
             "f2_p5"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -651,7 +651,7 @@
             "f2_p6"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -663,7 +663,7 @@
             "f2_p5"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -676,7 +676,7 @@
             "f2_202f"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -688,7 +688,7 @@
             "f2_p6"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -702,7 +702,7 @@
             "f2_p10"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -715,7 +715,7 @@
             "f2_p9"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -728,7 +728,7 @@
             "f2_202j"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -740,7 +740,7 @@
             "f2_p9"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -754,7 +754,7 @@
             "f2_p11"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -766,7 +766,7 @@
             "f2_p10"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -780,7 +780,7 @@
             "f2_p12"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -792,7 +792,7 @@
             "f2_p11"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -806,7 +806,7 @@
             "f2_p13"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -818,7 +818,7 @@
             "f2_p12"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -833,7 +833,7 @@
             "f2_p15"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -845,7 +845,7 @@
             "f2_p13"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -858,7 +858,7 @@
             "f2_202l"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -870,7 +870,7 @@
             "f2_p14"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -883,7 +883,7 @@
             "f2_p16"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -897,7 +897,7 @@
             "f2_p17"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -909,7 +909,7 @@
             "f2_p16"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -923,7 +923,7 @@
             "f2_p18"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -935,7 +935,7 @@
             "f2_p17"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -949,7 +949,7 @@
             "f2_p19"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -961,7 +961,7 @@
             "f2_p18"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -975,7 +975,7 @@
             "f2_p24"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -989,7 +989,7 @@
             "f2_p21"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1014,7 +1014,7 @@
             "f2_p23"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1040,7 +1040,7 @@
             "f2_p25"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1052,7 +1052,7 @@
             "f2_p24"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1066,7 +1066,7 @@
             "f2_p26"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1078,7 +1078,7 @@
             "f2_p25"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1092,7 +1092,7 @@
             "f2_p27"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1104,7 +1104,7 @@
             "f2_p26"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1118,7 +1118,7 @@
             "f2_p28"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1130,7 +1130,7 @@
             "f2_p27"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1144,7 +1144,7 @@
             "f2_p29"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1156,7 +1156,7 @@
             "f2_p28"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1170,7 +1170,7 @@
             "f2_p31"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1183,7 +1183,7 @@
             "f2_stairs_1"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1210,7 +1210,7 @@
             "f2_p32"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1224,7 +1224,7 @@
             "f2_p0"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1238,7 +1238,7 @@
             "f2_p35"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1252,7 +1252,7 @@
             "f2_stairs_2"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1278,7 +1278,7 @@
             "f2_p36"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1291,7 +1291,7 @@
             "f2_p37"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1305,7 +1305,7 @@
             "f2_p38"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1317,7 +1317,7 @@
             "f2_p37"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1331,7 +1331,7 @@
             "f2_p39"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1343,7 +1343,7 @@
             "f2_p38"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1357,7 +1357,7 @@
             "f2_p40"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1369,7 +1369,7 @@
             "f2_p39"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1383,7 +1383,7 @@
             "f2_p41"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1395,7 +1395,7 @@
             "f2_p40"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1408,7 +1408,7 @@
             "f3_stairs_3"
         ],
         "floor": 2,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1435,7 +1435,7 @@
             "f3_p29"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1464,7 +1464,7 @@
             "f3_p4"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1476,7 +1476,7 @@
             "f3_p2"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1490,7 +1490,7 @@
             "f3_p6"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1504,7 +1504,7 @@
             "f3_stairs_down"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1544,7 +1544,7 @@
             "f3_p8"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1559,7 +1559,7 @@
             "f3_p30"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1573,7 +1573,7 @@
             "f3_p11"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1588,7 +1588,7 @@
             "f3_p7"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1600,7 +1600,7 @@
             "f3_p9"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1612,7 +1612,7 @@
             "f3_p10"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1625,7 +1625,7 @@
             "f3_p7"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1639,7 +1639,7 @@
             "f3_p12"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1651,7 +1651,7 @@
             "f3_p11"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1665,7 +1665,7 @@
             "f3_p13"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1677,7 +1677,7 @@
             "f3_p12"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1691,7 +1691,7 @@
             "f3_p14"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1703,7 +1703,7 @@
             "f3_p13"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1717,7 +1717,7 @@
             "f3_p15"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1729,7 +1729,7 @@
             "f3_p14"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1743,7 +1743,7 @@
             "f3_p16"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1755,7 +1755,7 @@
             "f3_p15"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1768,7 +1768,7 @@
             "f3_p17"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1782,7 +1782,7 @@
             "f3_p18"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1794,7 +1794,7 @@
             "f3_p17"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1809,7 +1809,7 @@
             "f3_p20"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1821,7 +1821,7 @@
             "f3_p18"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1835,7 +1835,7 @@
             "f3_p18"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1873,7 +1873,7 @@
             "f3_p21"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1885,7 +1885,7 @@
             "f3_p20"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1899,7 +1899,7 @@
             "f3_p22"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1911,7 +1911,7 @@
             "f3_p21"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1925,7 +1925,7 @@
             "f3_p23"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1937,7 +1937,7 @@
             "f3_p22"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1951,7 +1951,7 @@
             "f3_p24"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1963,7 +1963,7 @@
             "f3_p23"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1977,7 +1977,7 @@
             "f3_p25"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -1989,7 +1989,7 @@
             "f3_p24"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2002,7 +2002,7 @@
             "f3_p26"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2016,7 +2016,7 @@
             "f3_p27"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2028,7 +2028,7 @@
             "f3_p26"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2042,7 +2042,7 @@
             "f3_p28"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2054,7 +2054,7 @@
             "f3_p27"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2067,7 +2067,7 @@
             "f3_p29"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2080,7 +2080,7 @@
             "f3_370"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2092,7 +2092,7 @@
             "f3_p29"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2106,7 +2106,7 @@
             "f3_p31"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2118,7 +2118,7 @@
             "f3_p30"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2132,7 +2132,7 @@
             "f3_p32"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2144,7 +2144,7 @@
             "f3_p31"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2158,7 +2158,7 @@
             "f3_p33"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2170,7 +2170,7 @@
             "f3_p32"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2184,7 +2184,7 @@
             "f3_p34"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2196,7 +2196,7 @@
             "f3_p33"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2210,7 +2210,7 @@
             "f3_p35"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2222,7 +2222,7 @@
             "f3_p34"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2237,7 +2237,7 @@
             "f3_p37"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2249,7 +2249,7 @@
             "f3_p35"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2262,7 +2262,7 @@
             "f3_308"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2274,7 +2274,7 @@
             "f3_p36"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2288,7 +2288,7 @@
             "f3_p38"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2300,7 +2300,7 @@
             "f3_p37"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2314,7 +2314,7 @@
             "f3_p39"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2326,7 +2326,7 @@
             "f3_p38"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2340,7 +2340,7 @@
             "f3_p40"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2354,7 +2354,7 @@
             "f3_p43"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2366,7 +2366,7 @@
             "f3_p40"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2380,7 +2380,7 @@
             "f3_p42"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2392,7 +2392,7 @@
             "f3_p41"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2406,7 +2406,7 @@
             "f3_310"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2418,7 +2418,7 @@
             "f3_p42"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2430,7 +2430,7 @@
             "f3_p42"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2444,7 +2444,7 @@
             "f3_p44"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2456,7 +2456,7 @@
             "f3_p43"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2470,7 +2470,7 @@
             "f3_p45"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2482,7 +2482,7 @@
             "f3_p44"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2496,7 +2496,7 @@
             "f3_p47"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2509,7 +2509,7 @@
             "f3_stairs"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2535,7 +2535,7 @@
             "f3_313"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2547,7 +2547,7 @@
             "f3_p47"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2559,7 +2559,7 @@
             "f3_p47"
         ],
         "floor": 3,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2573,7 +2573,7 @@
             "f4_elevator"
         ],
         "floor": 4,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2602,7 +2602,7 @@
             "f4_p5"
         ],
         "floor": 4,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2615,7 +2615,7 @@
             "f4_p4"
         ],
         "floor": 4,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2627,7 +2627,7 @@
             "f4_p3"
         ],
         "floor": 4,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2641,7 +2641,7 @@
             "f4_p6"
         ],
         "floor": 4,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2653,7 +2653,7 @@
             "f4_p5"
         ],
         "floor": 4,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2667,7 +2667,7 @@
             "f4_p8"
         ],
         "floor": 4,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2679,7 +2679,7 @@
             "f4_p6"
         ],
         "floor": 4,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2692,7 +2692,7 @@
             "f4_stairs"
         ],
         "floor": 4,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2719,7 +2719,7 @@
             "f4_p11"
         ],
         "floor": 4,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2732,7 +2732,7 @@
             "f4_p10"
         ],
         "floor": 4,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2745,7 +2745,7 @@
             "f4_468"
         ],
         "floor": 4,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2757,7 +2757,7 @@
             "f4_p10"
         ],
         "floor": 4,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2771,7 +2771,7 @@
             "f4_p12"
         ],
         "floor": 4,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2783,7 +2783,7 @@
             "f4_p11"
         ],
         "floor": 4,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2797,7 +2797,7 @@
             "f4_p13"
         ],
         "floor": 4,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2809,7 +2809,7 @@
             "f4_p12"
         ],
         "floor": 4,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2822,7 +2822,7 @@
             "f4_p14"
         ],
         "floor": 4,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2835,7 +2835,7 @@
             "f4_p15"
         ],
         "floor": 4,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2849,7 +2849,7 @@
             "f4_p16"
         ],
         "floor": 4,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2861,7 +2861,7 @@
             "f4_p15"
         ],
         "floor": 4,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2875,7 +2875,7 @@
             "f4_p17"
         ],
         "floor": 4,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2887,7 +2887,7 @@
             "f4_p16"
         ],
         "floor": 4,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2901,7 +2901,7 @@
             "f4_p18"
         ],
         "floor": 4,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2913,7 +2913,7 @@
             "f4_p17"
         ],
         "floor": 4,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2927,7 +2927,7 @@
             "f4_p20"
         ],
         "floor": 4,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2941,7 +2941,7 @@
             "f4_454"
         ],
         "floor": 4,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2979,7 +2979,7 @@
             "f4_p21"
         ],
         "floor": 4,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -2991,7 +2991,7 @@
             "f4_p20"
         ],
         "floor": 4,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -3006,7 +3006,7 @@
             "f4_p22"
         ],
         "floor": 4,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -3018,7 +3018,7 @@
             "f4_p21"
         ],
         "floor": 4,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -3030,7 +3030,7 @@
             "f4_p21"
         ],
         "floor": 4,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -3044,7 +3044,7 @@
             "f4_p23"
         ],
         "floor": 4,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -3056,7 +3056,7 @@
             "f4_p22"
         ],
         "floor": 4,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -3070,7 +3070,7 @@
             "f4_442"
         ],
         "floor": 4,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -3082,7 +3082,7 @@
             "f4_p23"
         ],
         "floor": 4,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
@@ -3094,7 +3094,7 @@
             "f4_p23"
         ],
         "floor": 4,
-        "type": "edge",
+        "type": "vertex",
         "real_x": 0.0,
         "real_y": 0.0,
         "real_theta": 0.0
