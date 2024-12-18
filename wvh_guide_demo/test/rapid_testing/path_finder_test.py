@@ -1,20 +1,12 @@
 #! /usr/bin/env python3
+import json
 import geojson
 import heapq
 import numpy as np
 def set_locations():
-    graph = {}
-    with open('/home/masettizan/ros2_ws/src/wvh_guide_demo/json/floors.geojson') as f:
-        data = geojson.load(f)
-        
-    for feature in data['features']:
-        info = {}
-        info['x'] = float(feature['geometry']['coordinates'][0])
-        info['y'] = float(feature['geometry']['coordinates'][1])
-        info['neighbors'] = feature['properties']['neighbors']
-        info['floor'] = feature['properties']['floor']
-        graph[feature['properties']['id']] = info
-    return graph
+    with open("/home/masettizan/ros2_ws/src/wvh_guide_demo/svg/WVH.json", "r") as f: #with open("/home/hello-robot/ament_ws/src/wvh_guide_demo/svg/exp/EXP.json", "r") as f: #
+        data = json.load(f)
+    return data
 
 
 def find_path(graph, start, goal):
@@ -52,7 +44,7 @@ def dijkstra(graph, start, goal):
     
     # Dictionary to store the shortest path to each node
     shortest_paths = {start: (None, 0)}
-    
+    print(queue)
     while queue:
         # Get the node with the lowest cost
         current_cost, current_node = heapq.heappop(queue)
@@ -73,7 +65,7 @@ def dijkstra(graph, start, goal):
             if neighbor not in shortest_paths or cost < shortest_paths[neighbor][1]:
                 shortest_paths[neighbor] = (current_node, cost)
                 heapq.heappush(queue, (cost, neighbor))
-    
+    print(queue)
     return None, float('inf')  # Return None if no path exists
 
 def calculate_edge_cost(graph, ele, st, node_name, neighbor_name):
@@ -97,28 +89,31 @@ def calculate_edge_cost(graph, ele, st, node_name, neighbor_name):
 def dijkstra(graph, start, goal, ele, st):
     queue = []
 
-    heapq.heappush(queue, (0, start))
+    heapq.heappush(queue, )
     path = {start: (None, 0)} #(0,None)
-
+    # print(queue)
     while queue:
-        cost, node = heapq.heappop(queue)
+        # print(queue)
+        node, cost = heapq.heappop(queue)
         # print(cost, node)
 
         if node == goal:
             result = []
             while node is not None:
+                # print(path)
                 result.append(node)
                 # print(path)
                 node = path[node][0]
             return result[::-1], cost  # Return reversed path and cost
-
+        # print(node, cost)
         for neighbor in graph[node]['neighbors']:
             weight = cost + calculate_edge_cost(graph, ele, st, node, neighbor)
             
             if (neighbor not in path) or (weight < path[neighbor][1]):
                 path[neighbor] = (node, weight)
-                heapq.heappush(queue, (weight, neighbor))
+                heapq.heappush(queue, (neighbor, weight))
             # print(path)
+    # print(path)
     return path
 
 
@@ -138,4 +133,4 @@ elevators = ['f1_p7', 'f2_p1', 'f3_p1']
 stairs = ['f1_p18', 'f1_p25', 'f2_p14', 'f2_p15', 'f3_p3', 'f3_p17']
 path = dijkstra(graph, 'f1_p1', 'f3_p2', elevators, stairs)
 print(path)
-print(generate_edges(path[0]))
+# print(generate_edges(path[0]))

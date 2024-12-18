@@ -90,7 +90,7 @@ def find_path(graph, elevators, start, goal):
     queue = []
     total_weight = 0
 
-    heapq.heappush(queue, (0, start))
+    heapq.heappush(queue, (start, 0))
     path = {start: (None, 0)} # prev node, cost
 
     while queue:
@@ -109,7 +109,7 @@ def find_path(graph, elevators, start, goal):
             if neighbor not in path or weight < path[neighbor][1]:
                 path[neighbor] = (node, weight)
                 total_weight += weight
-                heapq.heappush(queue, (weight, neighbor))
+                heapq.heappush(queue, (neighbor, weight))
 
 def _get_orientation_directions(graph, heading, edge):
     # find difference in starting node to end node of edge
@@ -117,46 +117,32 @@ def _get_orientation_directions(graph, heading, edge):
     vector_v = np.array([graph[edge[1]]['x'], graph[edge[1]]['y']]) # vector b - where we are going
     
     # heading & head is in vector format
-    head, theta, theta_direction = _get_angle(heading, vector_u, vector_v)
-    print(heading, head, theta)
-    #manipulate heading to turn the amt of head
-    if theta == 0.0:
-        return head, 0
+    theta = _get_angle(heading, vector_u, vector_v)
+
+    theta_rad = np.arctan2(heading[1], heading[0])
+    # Convert the angle to degrees
+    theta_deg = np.degrees(theta_rad)
+    new_heading = theta_deg + theta %360
+    print(new_heading)
     
     return _get_new_facing(heading, np.radians(theta)), (round(theta), theta_direction)        
-
-def _get_new_facing(orientation, turn_amt):
-    rot = np.array([[np.cos(turn_amt), -np.sin(turn_amt)],
-                    [np.sin(turn_amt), np.cos(turn_amt)]])
-    print('new:',rot @ orientation)
-    return rot @ orientation
-
-def _get_angle_direction(heading, goal):
-    # these vectors are what were taking the dot product of in get_angle()
-    cross = np.cross(heading, goal) 
-
-    if cross >= 0:
-        return 1 # positive (+), ccw
-    else:
-        return -1 # negative (-), cw
 
 def _get_angle(heading, u, v):
     # vector difference between 'a' and 'b' - hypotonuse
     goal_vector = v - u
 
-    if not np.any(goal_vector): #elevator
-        return -1*heading, 180, 1
-
     goal_norm = goal_vector/np.linalg.norm(goal_vector)
-
-    heading = np.array([0,1])
     heading_norm = heading/np.linalg.norm(heading)
+
     cos_theta = np.dot(heading_norm, goal_norm)
+    theta_dir = np.sign(np.cross(heading_norm, goal_norm))
 
-    theta = np.arccos(cos_theta)
-    theta_direction = _get_angle_direction(heading_norm, goal_norm)
+    theta = np.arccos(cos_theta) * theta_dir
 
-    return goal_norm, np.degrees(theta), theta_direction
+    if theta == 0 and np.sum(goal_norm - heading_norm) != 0:
+        theta = np.pi
+
+    return np.degrees(theta)
 
 # return directions for movement for given edge, update current position
 def _get_translation_directions(graph, elevators, current, edge): 
@@ -270,7 +256,6 @@ def clock_to_cardinal(action):
     }
     return oclock_angles.get(action, None)
 
-
 def simplify(directions):
     # print(directions)
     dir = _simplify_rotation(directions)
@@ -296,9 +281,40 @@ def simplify(directions):
 
     return result
 
-graph = {}
-    # fill in graph variable
-graph = _set_locations()
-elevators = ['f1_elevator', 'f2_elevator', 'f3_elevator', 'f4_elevator']
-directions, ori, pos = directions_callback(graph, elevators, np.array([0, -1]), 'f1_robot_position', 'f1_p9')
-print(directions, ori, pos)
+# You are facing North
+# print(_get_angle(np.array([0, 1]), np.array([0, 0]), np.array([0, 1])))  # should be zero
+# print(_get_angle(np.array([0, 1]), np.array([0, 0]), np.array([1, 0])))  # 90 degrees
+# print(_get_angle(np.array([0, 1]), np.array([0, 0]), np.array([0, -1])))  # 180 degrees
+# print(_get_angle(np.array([0, 1]), np.array([0, 0]), np.array([-1, 0])))  # -90 degrees
+
+# # You are facing East
+# print(_get_angle(np.array([1, 0]), np.array([0, 0]), np.array([0, 1])))  # -90 degrees
+# print(_get_angle(np.array([1, 0]), np.array([0, 0]), np.array([1, 0])))  # should be zero
+# print(_get_angle(np.array([1, 0]), np.array([0, 0]), np.array([0, -1])))  # 90 degrees
+# print(_get_angle(np.array([1, 0]), np.array([0, 0]), np.array([-1, 0])))  # 180 degrees
+# print(_get_angle(np.array([1, 0]), np.array([0, 0]), np.array([-1, 0.0001])))  # ~180 degrees
+# vector = [0,1]
+# theta = 90
+# theta_rad = np.arctan2(vector[1], vector[0])
+# print(theta_rad)
+# # Convert the angle to degrees
+# theta_deg = np.degrees(theta_rad)
+# new_heading = (theta_deg + theta )%360
+# print(new_heading)
+
+# # Convert degrees to radians
+# radians = math.radians(new_heading)
+
+# # Calculate the vector components
+# x = math.cos(radians)
+# y = math.sin(radians)
+
+# # Return the vector as a tuple
+# print (x, y)
+
+# # graph = {}
+# #     # fill in graph variable
+# # graph = _set_locations()
+# # elevators = ['f1_elevator', 'f2_elevator', 'f3_elevator', 'f4_elevator']
+# # directions, ori, pos = directions_callback(graph, elevators, np.array([0, -1]), 'f1_robot_position', 'f1_p9')
+# # print(directions, ori, pos)

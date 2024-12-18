@@ -430,7 +430,7 @@ def main():
 
         current_position = 'f1_robot_position' # given in name
         current_orientation = np.array([0, -1])
-        directions, current_orientation, current_position = traverse.get_directions(current_orientation, current_position, 'f1_p9')
+        directions, current_orientation, current_position = traverse.get_directions(current_orientation, current_position, 'f1_p2')
         result = ', '.join(traverse.simplify(directions))
         print(result)
 
