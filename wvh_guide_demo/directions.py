@@ -247,6 +247,7 @@ class Graph(Node):
         return result
 
 def main():
+    rclpy.init()
     # move this to parameters and init when a launch file is made
     traverse = Graph()
     executor = MultiThreadedExecutor(num_threads=2)
