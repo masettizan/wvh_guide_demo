@@ -140,7 +140,7 @@ def compute_directions(graph, heading, start, end):
         heading, theta = get_rotation(graph, heading, edge)
         curr_position, movement = get_translation(graph, curr_position, edge)
 
-        directions.append(('rot', round((-1 * theta/30)%12)))
+        directions.append(('rot', round((-1 * theta/30)%12))) # mult by -1 : bc the radian circle moves opposite
         if isinstance(movement, tuple):
             directions.append(('vert', f'take the {movement[0]} to floor {movement[1]}'))
         else:
@@ -225,7 +225,7 @@ def directions_callback(graph, orientation, curr_pos, goal):
         goal_node = _find_node_by_type(graph, curr_pos, goal)
     
     directions, curr_ori, curr_pos = compute_directions(graph, curr_ori, curr_pos, goal_node)
-    return ', '.join(simplify(directions)), curr_ori.tolist(), curr_pos.tolist()\
+    return ', '.join(simplify(directions)), curr_ori.tolist(), curr_pos.tolist()
     
 
 graph = {}
